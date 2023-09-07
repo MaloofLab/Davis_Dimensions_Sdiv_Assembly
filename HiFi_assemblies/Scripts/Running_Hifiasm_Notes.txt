@@ -1,0 +1,34 @@
+# Create link to reads
+
+ln -s /media/volume/sdd/Revio/r84066_20230630_201715_2_A01/hifi_reads/ hifi_bams
+
+# Download hifiasm from github (08/16/2023)
+# Install hifiasm (requiring g++ and zlib)
+git clone https://github.com/chhylp123/hifiasm
+cd hifiasm && make
+
+# Run on test data (use -f0 for small datasets)
+wget https://github.com/chhylp123/hifiasm/releases/download/v0.7/chr11-2M.fa.gz
+./hifiasm -o test -t4 -f0 chr11-2M.fa.gz 2> test.log
+awk '/^S/{print ">"$2;print $3}' test.bp.p_ctg.gfa > test.p_ctg.fa  # get primary contigs in FASTA
+cd ..
+## Works
+
+## Convert our reads from bam to fq using Pacbio's pbtk package
+conda create --name pacbio
+conda activate pacbio
+conda install -c bioconda pbtk
+
+bam2fastq \
+  --num-threads 24 \
+  -o m84066_230701_203753_s1.hifi_reads.default \
+  hifi_bams/m84066_230701_203753_s1.hifi_reads.default.bam
+
+# Run on our data
+hifiasm/hifiasm \
+  -o S.div.asm \
+  -t 24 \
+  --primary \
+  m84066_230701_203753_s1.hifi_reads.default.fastq.gz
+
+awk '/^S/{print ">"$2;print $3}' S.div.asm.p_ctg.gfa > S.div.asm.p_ctg.fasta

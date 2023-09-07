@@ -1,0 +1,77 @@
+# Pull docker image
+docker pull ezlabgva/busco:v5.5.0_cv1
+
+# Get database embryophyta odb10
+wget https://busco-data.ezlab.org/v5/data/lineages/embryophyta_odb10.2020-09-10.tar.gz
+
+# Run container on full assembly
+docker run \
+  -u $(id -u) \
+  -v $(pwd):/busco_wd \
+  ezlabgva/busco:v5.5.0_cv1 busco \
+    --mode genome \
+    --in HiFiasm_S.div.fasta \
+    --out HiFiasm_S.div_Full \
+    --lineage_dataset ./embryophyta_odb10 \
+    --cpu 12 \
+    --offline
+
+# Run container on 1Mb assembly
+docker run \
+  -u $(id -u) \
+  -v $(pwd):/busco_wd \
+  ezlabgva/busco:v5.5.0_cv1 busco \
+    --mode genome \
+    --in 1Mb_HiFiasm_S.div.fasta \
+    --out HiFiasm_S.div_1Mb \
+    --lineage_dataset ./embryophyta_odb10 \
+    --cpu 12 \
+    --offline
+
+# Run container on full HiC assembly
+docker run \
+  -u $(id -u) \
+  -v $(pwd):/busco_wd \
+  ezlabgva/busco:v5.5.0_cv1 busco \
+    --mode genome \
+    --in Sdiv.20220815.final.assembly.fasta \
+    --out Sdiv.20220815.final_Full \
+    --lineage_dataset ./embryophyta_odb10 \
+    --cpu 12 \
+    --offline
+
+# Run container on 1Mb HiC assembly
+docker run \
+  -u $(id -u) \
+  -v $(pwd):/busco_wd \
+  ezlabgva/busco:v5.5.0_cv1 busco \
+    --mode genome \
+    --in 1Mb_Sdiv.20220815.final.assembly.fasta \
+    --out Sdiv.20220815.final_1Mb \
+    --lineage_dataset ./embryophyta_odb10 \
+    --cpu 12 \
+    --offline
+
+# Run container on Original assembly
+docker run \
+  -u $(id -u) \
+  -v $(pwd):/busco_wd \
+  ezlabgva/busco:v5.5.0_cv1 busco \
+    --mode genome \
+    --in Sdiv.20131220.final.assembly.fasta \
+    --out Sdiv.20131220.final_Full \
+    --lineage_dataset ./embryophyta_odb10 \
+    --cpu 12 \
+    --offline
+
+# Run container on Arabidopsis (TAIR) assembly
+docker run \
+  -u $(id -u) \
+  -v $(pwd):/busco_wd \
+  ezlabgva/busco:v5.5.0_cv1 busco \
+    --mode genome \
+    --in TAIR10_chr_all.fas \
+    --out TAIR10_chr_all_Full \
+    --lineage_dataset ./embryophyta_odb10 \
+    --cpu 12 \
+    --offline
