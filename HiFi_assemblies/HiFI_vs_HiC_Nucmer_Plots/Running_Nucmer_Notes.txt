@@ -1,0 +1,110 @@
+#Hifi to Hifi
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/nucmer \
+  --batch 1 \
+  --prefix HiFi_vs_Hifi \
+  --threads 20 \
+  ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+  ../Assemblies/1Mb_HiFiasm_S.div.fasta
+
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/delta-filter \
+  -i 70 \
+  -l 10000 \
+  HiFi_vs_Hifi.delta \
+  > Filtered_HiFi_vs_Hifi.delta
+
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/mummerplot \
+  --prefix HiFi_vs_Hifi \
+  --Rfile ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+  --size large \
+  --terminal png \
+  Filtered_HiFi_vs_Hifi.delta
+
+#HiFi to Sdiv2022
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/nucmer \
+  --batch 1 \
+  --prefix HiFi_vs_Sdiv.20220815 \
+  --threads 20 \
+  ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+  ../Assemblies/1Mb_Sdiv.20220815.final.assembly.fasta
+
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/delta-filter \
+  -i 70 \
+  -l 10000 \
+  HiFi_vs_Sdiv.20220815.delta \
+  > Filtered_HiFi_vs_Sdiv.20220815.delta
+
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/mummerplot \
+  --prefix HiFi_vs_Sdiv.20220815 \
+  --Rfile ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+  --size large \
+  --terminal png \
+  Filtered_HiFi_vs_Sdiv.20220815.delta
+
+## Make it fat
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/mummerplot \
+  --prefix Fat_HiFi_vs_Sdiv.20220815 \
+  --Rfile ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+  --size large \
+  --fat \
+  --terminal png \
+  Filtered_HiFi_vs_Sdiv.20220815.delta
+
+#HiFi to Sdiv2013_full
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/nucmer \
+  --batch 1 \
+  --prefix HiFi_vs_Sdiv.20131220_full \
+  --threads 20 \
+  ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+  ../Assemblies/Sdiv.20131220.final.assembly.fasta
+
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/delta-filter \
+  -i 70 \
+  -l 10000 \
+  HiFi_vs_Sdiv.20131220_full.delta \
+  > Filtered_HiFi_vs_Sdiv.20131220_full.delta
+
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/mummerplot \
+  --prefix HiFi_vs_Sdiv.20131220_full \
+  --Rfile ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+  --size large \
+  --fat \
+  --terminal png \
+  Filtered_HiFi_vs_Sdiv.20131220_full.delta
+
+## Make it fat
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/mummerplot \
+  --prefix Fat_HiFi_vs_Sdiv.20131220 \
+  --Rfile ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+  --size large \
+  --fat \
+  --terminal png \
+  Filtered_HiFi_vs_Sdiv.20131220_full.delta
+
+#HiFi to TAIR10
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/nucmer \
+  --batch 1 \
+  --prefix HiFi_vs_TAIR10 \
+  --threads 12 \
+  ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+  ../Assemblies/TAIR10_chr_all.fas
+
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/delta-filter \
+  -i 70 \
+  -l 10000 \
+  HiFi_vs_TAIR10.delta \
+  > Filtered_HiFi_vs_TAIR10.delta
+
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/mummerplot \
+  --prefix HiFi_vs_TAIR10 \
+  --Rfile ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+  --size large \
+  --terminal png \
+  Filtered_HiFi_vs_TAIR10.delta
+
+/media/volume/sdc/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/mummerplot \
+  --prefix Fat_HiFi_vs_TAIR10 \
+  --Rfile ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+  --size large \
+  --fat \
+  --terminal png \
+  Filtered_HiFi_vs_TAIR10.delta
