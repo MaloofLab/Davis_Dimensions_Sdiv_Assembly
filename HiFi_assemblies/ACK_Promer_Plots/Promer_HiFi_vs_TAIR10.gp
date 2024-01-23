@@ -38,7 +38,7 @@ set border 0
 set tics scale 0
 set xlabel "S. diversifolius"
 set ylabel "A. thaliana"
-set title "S. diversifolius vs A. thaliana in protein space"
+set title "S. diversifolius vs A. thaliana"
 set format "%.0f"
 set mouse format "%.0f"
 set mouse mouseformat "[%.0f, %.0f]"
