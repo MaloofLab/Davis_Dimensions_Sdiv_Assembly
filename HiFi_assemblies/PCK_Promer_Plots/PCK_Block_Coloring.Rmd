@@ -1,0 +1,197 @@
+---
+title: "ACK_Block_Coloring"
+output: pdf_document
+date: "2023-03-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+# Load genes and chrom info
+
+```{r}
+blocks <- read_tsv("PCK_Blocks.tsv") %>%
+  mutate(Start_Gene = toupper(Start_Gene),
+         End_Gene = toupper(End_Gene),
+         At = sub("At", "Chr", At))
+genes <- read_tsv("TAIR10_GFF3_genes.gff", col_names = F) %>%
+  filter(X3 == "gene") %>%
+  mutate(X9 = gsub(";.*", "", X9),
+         X9 = sub("ID=", "", X9))
+chrom_sizes <- read_tsv("TAIR10_chr_all.fas.fai", col_names = F) %>%
+  select(Chrom = X1, Size = X2)
+chrom_sizes$Plot_Buffer <- 0
+for(i in 2:nrow(chrom_sizes)){
+  chrom_sizes$Plot_Buffer[i] <- chrom_sizes$Size[i-1] + chrom_sizes$Plot_Buffer[i-1]
+}
+genes <- genes %>%
+  filter(X9 %in% blocks$Start_Gene | X9 %in% blocks$End_Gene)
+```
+
+# Merge data
+
+```{r}
+combined <- left_join(blocks,
+                      genes[,c(4,9)],
+                      by = c("Start_Gene" = "X9")) %>%
+  left_join(genes[,c(5,9)],
+            by = c("End_Gene" = "X9")) %>%
+  select(everything(), Start = X4, End = X5) %>%
+  left_join(chrom_sizes[,-2],
+            by = c("At" = "Chrom")) %>%
+  mutate(Buffered_Start = Start + Plot_Buffer,
+         Buffered_End = End + Plot_Buffer)
+```
+
+# Load plotting data
+
+```{r}
+fplot <- read_delim("Promer_HiFi_vs_TAIR10.fplot",
+                  col_names = c("Reference", "Query", "pct.identity"),
+                  comment = "#",
+                  delim = " ")
+rplot <- read_delim("Promer_HiFi_vs_TAIR10.rplot",
+                  col_names = c("Reference", "Query", "pct.identity"),
+                  comment = "#",
+                  delim = " ")
+
+combined_plot <- rbind(fplot, rplot)
+```
+
+# Separate into blocks
+```{r}
+AK1 <- combined_plot %>%
+  filter((Query >= 3631 & Query <= 6873255) |
+         (Query >= 6886879 & Query <= 14161938) |
+         (Query >= 16155403 & Query <= 21030649)
+         )
+
+AK2 <- combined_plot %>%
+  filter((Query >= 21037211 & Query <= 24030820) |
+         (Query >= 24129918 & Query <= 30415113)
+         )
+
+AK3 <- combined_plot %>%
+  filter((Query >= 50127613 & Query <= 59397360) |
+         (Query >= 32297548 & Query <= 33955131) |
+         (Query >= 34738083 & Query <= 39420785)
+         )
+
+AK4 <- combined_plot %>%
+  filter((Query >= 39426357 & Query <= 43636589) |
+         (Query >= 43636577 & Query <= 50116844)
+         )
+
+AK5_6_8 <- combined_plot %>%
+  filter((Query >= 30500929 & Query <= 32289566) |
+         (Query >= 59400295 & Query <= 63626375) |
+         (Query >= 64450234 & Query <= 73584419) |
+         (Query >= 99877742 & Query <= 103789872) |
+         (Query >= 109007685 & Query <= 111527202) |
+         (Query >= 116635906 & Query <= 119141487)
+         )
+
+AK6_8 <- combined_plot %>%
+  filter((Query >= 73597145 & Query <= 76346702) |
+         (Query >= 77783361 & Query <= 81045436) | 
+         (Query >= 92175907 & Query <= 99866981) |
+         (Query >= 111537329 & Query <= 116633387)
+         )
+
+AK7 <- combined_plot %>%
+  filter((Query >= 104259449 & Query <= 109002574) | 
+         (Query >= 81068256 & Query <= 82778358) |
+         (Query >= 82781392 & Query <= 92170314)
+         )
+
+ACKs <- list(AK1, AK2, AK3, AK4,
+             AK5_6_8, AK6_8, AK7)
+
+non_ACK <- c(list(combined_plot), ACKs) %>%
+  reduce(anti_join, by = "Query")
+```
+
+# Save to file
+
+```{r}
+# all_plots <- c(list(non_ACK), ACKs)
+# paths <- file.path(paste0("Promer_HiFi_vs_TAIR10_PCK_", 0:7, ".gplot"))
+# walk2(all_plots, paths,
+#       write_delim,
+#       col_names = F,
+#       delim = " ")
+```
+
+# Edit for plotting
+```{bash}
+<!-- for i in $(ls Promer_HiFi_vs_TAIR10_PCK_*.gplot) -->
+<!-- do -->
+<!-- awk -v n=2 '1; NR % n == 0 {print ""}' ${i} > temp.gplot -->
+<!-- mv temp.gplot ${i} -->
+<!-- done -->
+```
+
+
+
+########################
+##########################
+# Create Blocks for Sdiv
+```{r}
+ACKs2 <- map2(all_plots, 0:7, ~.x %>% mutate(ACK = .y))
+
+ACKs2 <- ACKs2 %>% 
+  reduce(rbind) %>%
+  mutate(Order = rep(c("Start","End"), times = nrow(.)/2)) %>%
+  select(-Query, -pct.identity)
+
+ACKs3 <- data.frame(Start = rep(NA_real_, nrow(ACKs2)/2), End = rep(NA_real_, nrow(ACKs2)/2), ACK = rep(NA_real_, nrow(ACKs2)/2))
+
+for(i in 1:nrow(ACKs3)){
+  ACKs3[i,1] <- ACKs2[i*2-1,1]
+  ACKs3[i,2] <- ACKs2[i*2,1]
+  ACKs3[i,3] <-  ACKs2[i*2-1,2]
+}
+
+#ACKs3 is the block assignments for different stretches of S.div
+#write_delim(ACKs3, "Sdiv_ACK_Blocks.tsv", delim = "\t")
+```
+
+```{r}
+fplot <- read_delim("Sdiv2Sdiv.fplot",
+                  col_names = c("Reference", "Query", "pct.identity"),
+                  comment = "#",
+                  delim = " ")
+rplot <- read_delim("Sdiv2Sdiv.rplot",
+                  col_names = c("Reference", "Query", "pct.identity"),
+                  comment = "#",
+                  delim = " ")
+
+combined_plot <- rbind(fplot, rplot) %>%
+  filter(Reference != 0)
+
+combined_plot2 <- data.frame(Reference.Start = rep(NA_real_, nrow(combined_plot)/2), Reference.End = rep(NA_real_, nrow(combined_plot)/2), Query.Start = rep(NA_real_, nrow(combined_plot)/2), Query.End = rep(NA_real_, nrow(combined_plot)/2), pct.identity = rep(NA_real_, nrow(combined_plot)/2))
+
+for(i in 1:nrow(combined_plot2)){
+  combined_plot2[i,1] <- combined_plot[i*2-1,1]
+  combined_plot2[i,2] <- combined_plot[i*2,1]
+  combined_plot2[i,3] <-  combined_plot[i*2-1,2]
+  combined_plot2[i,4] <-  combined_plot[i*2,2]
+  combined_plot2[i,5] <-  combined_plot[i*2-1,3]
+}
+
+#Gonna lose data with this potentially
+#combined_plot2 <- combined_plot2[!duplicated(combined_plot2$Reference.Start),]
+```
+
+```{r}
+ACKs3 <- ACKs3 %>%
+  select(Reference.Start = Start, everything())
+by <- join_by(Reference.Start >= Reference.Start, Reference.Start <= End)
+Sdiv_ACKs <- left_join(combined_plot2, ACKs3, by)
+```
+

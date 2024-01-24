@@ -72,7 +72,7 @@ AK1 <- combined_plot %>%
          )
 
 AK2 <- combined_plot %>%
-  filter((Query >= 24030820 & Query <= 21037211) |
+  filter((Query <= 24030820 & Query >= 21037211) |
          (Query >= 24129918 & Query <= 30415113)
          )
 
@@ -95,19 +95,19 @@ AK5 <- combined_plot %>%
 
 AK6 <- combined_plot %>%
   filter((Query >= 73597145 & Query <= 76346702) |
-         (Query >= 81045436 & Query <= 77783361) |
-         (Query >= 103789872 & Query <= 99877742) |
-         (Query >= 99866981 & Query <= 92175907)
+         (Query <= 81045436 & Query >= 77783361) |
+         (Query <= 103789872 & Query >= 99877742) |
+         (Query <= 99866981 & Query >= 92175907)
          )
 
 AK7 <- combined_plot %>%
-  filter((Query >= 109002574 & Query <= 104259449) |
+  filter((Query <= 109002574 & Query >= 104259449) |
          (Query >= 81068256 & Query <= 82778358) |
          (Query >= 82781392 & Query <= 92170314)
          )
 
 AK8 <- combined_plot %>%
-  filter((Query >= 111527202 & Query <= 109007685) |
+  filter((Query <= 111527202 & Query >= 109007685) |
          (Query >= 111537329 & Query <= 116633387) |
          (Query >= 116635906 & Query <= 119141487)
          )

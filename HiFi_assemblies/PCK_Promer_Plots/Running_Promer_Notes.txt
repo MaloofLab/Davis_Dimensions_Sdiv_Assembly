@@ -1,0 +1,56 @@
+#Hifi to TAIR10
+## Need to make a loop because it's crashing
+chroms=$(grep "^>" ../Assemblies/TAIR10_chr_all.fas | sed 's/>//')
+for chrom in $chroms
+do
+  echo ${chrom} > temp.txt
+
+  /media/volume/sdb/Packages/seqtk/seqtk subseq \
+    -l 70 \
+    ../Assemblies/TAIR10_chr_all.fas \
+    temp.txt \
+    > ../Assemblies/${chrom}.fa
+
+  /media/volume/sdb/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/promer \
+    --maxmatch \
+    --prefix HiFi_vs_${chrom} \
+    ../Assemblies/1Mb_HiFiasm_S.div.fasta \
+    ../Assemblies/${chrom}.fa
+
+  /media/volume/sdb/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/delta-filter \
+    -i 80 \
+    -l 1000 \
+    HiFi_vs_${chrom}.delta \
+    > Filtered_HiFi_vs_${chrom}.delta
+
+  /media/volume/sdb/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/mummerplot \
+    --prefix Promer_HiFi_vs_${chrom} \
+    --Rfile ../Assemblies/1Mb_HiFiasm_Rfile.txt \
+    --size large \
+    --terminal png \
+    Filtered_HiFi_vs_${chrom}.delta
+done
+
+rm temp.txt
+#### Combining results
+head -n 2 HiFi_vs_Chr1.delta > HiFi_vs_TAIR10.delta
+#Edit file to change path the full TAIR fasta file
+
+for chrom in $chroms
+do
+  grep -vi "Promer" HiFi_vs_${chrom}.delta >> HiFi_vs_TAIR10.delta
+done
+
+# Filter delta file
+/media/volume/sdb/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/delta-filter \
+  -i 85 \
+  -l 1000 \
+  HiFi_vs_TAIR10.delta \
+  > Filtered_HiFi_vs_TAIR10.delta
+#
+/media/volume/sdb/S.div_Hifi_Assembly/Alignments/mummer-4.0.0rc1/mummerplot \
+  --prefix Promer_HiFi_vs_TAIR10\
+  --Rfile ../Assemblies/1Mb_HiFiasm_Rfile.txt \
+  --size large \
+  --terminal png \
+  Filtered_HiFi_vs_TAIR10.delta

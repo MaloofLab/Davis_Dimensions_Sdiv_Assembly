@@ -1,0 +1,18 @@
+# Gather Arabidopsis files
+cp /media/volume/sde/Arabidopsis_thaliana/ACK_Blocks.tsv .
+cp /media/volume/sde/Arabidopsis_thaliana/TAIR10_GFF3_genes.gff .
+cp /media/volume/sde/Arabidopsis_thaliana/TAIR10_chr_all.fas.fai .
+
+# Rmd copied over
+cp /media/volume/sde/Streptanthus_diversifolius/Promer/ACK_Block_Coloring.Rmd .
+
+# Copy over delta file
+cp ../Filtered_HiFi_vs_TAIR10.delta .
+
+# Run Mummerplot to create fplot and rplot files
+/media/volume/sdd/S.div_Hifi_Assembly/Alignments/Promer/ACK_Stuff/mummer-4.0.0rc1/mummerplot \
+  --prefix Promer_HiFi_vs_TAIR10\
+  --Rfile ../../Assemblies/1Mb_HiFiasm_Rfile.txt \
+  --size large \
+  --terminal png \
+  Filtered_HiFi_vs_TAIR10.delta
