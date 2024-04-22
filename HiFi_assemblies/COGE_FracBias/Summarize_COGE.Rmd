@@ -1,0 +1,98 @@
+---
+title: "Summarize_COGE_Results"
+output: html_document
+date: "2024-04-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Using COGE to examine fractionation bias in S. div.
+
+Tried two different settings, one where I used the CDS of both S.div and A.t., another where it was CDS of A.t. and Genome of S.div
+
+A.t version TAIR10
+
+Other settings:
+
+Default. Set syntenic ratio as 2 (S. div) to 1 (A. t)
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(patchwork)
+```
+
+```{r}
+cds.dat <- read_csv("25869_67829.CDS-CDS.last.tdd10.cs0.filtered.dag.all.go_D20_g10_A5.aligncoords.Dm0.ma1.qac1.2.40.gcoords_tc25_qc25_sd1to2_agTrue_rrTrue_ws100.fractbias-results.csv", 
+                    comment="#")
+cds.dat <- cds.dat %>% rename_with( ~ str_replace(., "Query Chr (.*) \\(%\\)", "\\1")) %>% clean_names()
+``` 
+
+```{r}
+head(cds.dat)
+```
+```{r}
+cds.dat.long <- 
+  cds.dat %>%
+  pivot_longer(starts_with("ptg"), names_to = "scaffold", values_to = "pct_retained") %>%
+  group_by(target_chr, sliding_window_count) %>%
+  ungroup() %>%
+  filter(target_chr !="Mt") %>%
+  mutate(target_chr = str_c("Arabidopsis chr ", target_chr))
+cds.dat.long
+```
+
+
+```{r, fig.asp=1.3}
+cds.dat.long %>%
+    group_by(target_chr, scaffold) %>%
+  filter(sum(pct_retained >0) > 300 ) %>%
+  ggplot(aes(x=sliding_window_count, y=pct_retained, color=scaffold)) +
+  geom_line() +
+  facet_wrap(~target_chr, scales="free_x", ncol=1) +
+  scale_color_viridis_d(option="E") +
+  ylab("Percent Retention") +
+  xlab("Gene Index") +
+  theme_minimal()
+```
+
+Plot each chromosome separately so that colors are better separated.
+
+```{r}
+
+plt.retention <- function(d) { 
+    ggplot(d, aes(x=sliding_window_count, y=pct_retained, color=scaffold)) +
+    geom_line() +
+    scale_color_viridis_d(option="E", guide="none") +
+    ylab("Percent Retention") +
+    xlab("Gene Index") +
+    theme_minimal() +
+    ggtitle(d$title[1])
+}
+
+plots <- cds.dat.long %>%
+  mutate(title=target_chr) %>%
+  group_by(target_chr, scaffold) %>%
+  filter(sum(pct_retained >0) > 300 ) %>%
+  group_by(target_chr) %>%
+  nest() %>%
+  mutate(plot=map(data, plt.retention))
+
+plots$plot %>% walk(print)
+```
+
+
+```{r, fig.asp=1.5}
+plots$plot[[1]] / 
+  plots$plot[[2]] /
+  plots$plot[[3]] /
+  plots$plot[[4]] /
+  plots$plot[[5]] +
+  plot_layout(axis_titles = "collect") 
+
+ggsave("FracBias.png")
+```
+
