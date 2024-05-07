@@ -1,0 +1,117 @@
+---
+title: "Telomeres"
+output: html_document
+date: "2024-05-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(seqinr)
+library(Biostrings)
+```
+
+Read in the genome assembly file for the 1MB longest contigs
+```{r}
+genome.fa <- readDNAStringSet("~/Sequences/ref_genomes/Sdiv.2023HiFiasm/1Mb_HiFiasm_S.div.fasta")
+genome.fa
+```
+
+Now define the telomere repeats
+```{r}
+telo_fr_repeat <- "TTTAGGGTTTAGGGTTTAGGG"
+telo_rv_repeat <- "CCCTAAACCCTAAACCCTAAA"
+```
+
+some quick functions
+```{r}
+create_windows <- function(genome, window_size) {
+  windows <- substring(genome, seq(1, nchar(genome), window_size),
+                       seq(window_size, nchar(genome) + window_size, window_size))
+  return(windows)
+}
+
+count_sequence <- function(window, sequence) {
+  count <- sum(countPattern(sequence, window))
+  return(count)
+}
+```
+
+
+```{r}
+# We need to create an empty data frame to store each iteration
+telo_count.table <- data.frame()
+
+# Define Window Size
+window_size <- 1000000
+
+# Run a for loop for all of the entries within the fasta
+for (i in 1:length(genome.fa)) {
+    # Extract the sequence name
+    seq_name <- names(genome.fa[i])
+    # Make sure the sequence is read as characters
+    sequence <- as.character(genome.fa[i])
+
+    # Split the sequence into windows
+    windows <- create_windows(genome = sequence, window_size = window_size)
+
+    # Count occurrences of the telomere fr sequence in each window
+    telo_fr_counts <- sapply(windows, count_sequence, sequence = telo_fr_repeat)
+  
+    # Count occurrences of the telomere rv sequence in each window
+    telo_rv_counts <- sapply(windows, count_sequence, sequence = telo_rv_repeat)
+
+    # Create a data table for the window counts
+    dt_chromosome <- data.frame(chromosome = rep(seq_name, length(windows)),
+                                window = seq_along(windows),
+                                telo_fr_counts = telo_fr_counts,
+                                telo_rv_counts= telo_rv_counts,
+                                telo_all_counts = telo_fr_counts + telo_rv_counts,
+                                row.names = NULL)
+    
+    # Bind the output of each iteration to the table
+    telo_count.table <- rbind(telo_count.table, dt_chromosome)
+    
+    }
+
+# View the table to help with answering questions
+telo_count.table 
+```
+
+```{r}
+# First, we filter for rows with some telomere counts
+filt_telo.table <- telo_count.table %>%
+  filter(telo_all_counts > 20)
+```
+
+```{r}
+chr_length.table <- data.frame(chromosome = names(genome.fa), length = width(genome.fa))
+```
+
+```{r}
+plot.table <- left_join(chr_length.table, filt_telo.table, by = "chromosome") %>%
+  group_by(chromosome) %>%
+  mutate(position=ifelse(window==1,1, # beginning of scaffold
+                         ifelse(window==max(window), length, # end of scaffold
+                         (window-1) * window_size + (window_size/2) # not at tned; position in middle of window.
+                         )),
+         telo_size=telo_all_counts*21) %>%
+  select(-telo_fr_counts, telo_rv_counts)
+
+plot.table
+```
+
+
+```{r}
+plot.table %>% ggplot(aes(x = reorder(chromosome, length,decreasing = TRUE), y = length)) +
+  geom_col(fill = "skyblue", position="identity") +
+  geom_point( aes(y=position, size=telo_size)) + 
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5)) +
+  xlab("Contig") +
+  ylab("Position (bp)") +
+  scale_size_continuous(name="Telomere \n Size (bp)")
+```
