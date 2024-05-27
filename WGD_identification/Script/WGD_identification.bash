@@ -9,15 +9,15 @@ wget https://github.com/qiao-xin/Scripts_for_GB/blob/master/identify_Ks_peaks_by
 python3 plot_syntenic_blocks_ks_distri.py Cam.wgd.pairs.filtered.kaks.forplot 3 Cam
 python3 plot_syntenic_blocks_ks_distri.py Streptanthus.wgd.pairs.filtered.forplot 3 Streptanthus
 python3 plot_syntenic_blocks_ks_distri.py Spi.wgd.pairs.filtered.kaks.forplot 3 Spi
-python3 plot_syntenic_blocks_ks_distri-v2.py Rsq.wgd.pairs.filter.kaks.forplot 3 Rsq
-python3 plot_syntenic_blocks_ks_distri-v2.py Boh.wgd.pairs.kaks.forplot 3 Boh
-python3 plot_syntenic_blocks_ks_distri-v2.py Tpa.wgd.pairs.filtered.kaks.forplot 2 Tpa
-python3 plot_syntenic_blocks_ks_distri-v2.py Aal.wgd.pairs.filter.kaks.forplot 2 Aal
-python3 plot_syntenic_blocks_ks_distri-v2.py Dni.wgd.pairs.filter.kaks.forplot 2 Dni
-python3 plot_syntenic_blocks_ks_distri-v2.py Ath.wgd.pairs.filtered.kaks.forplot 2 Ath
-python3 plot_syntenic_blocks_ks_distri-v2.py Chi.wgd.pairs.filtered.kaks.forplot 2 Chi
-python3 plot_syntenic_blocks_ks_distri-v2.py Esy.wgd.pairs.filtered.kaks.forplot 2 Esy
-python3 plot_syntenic_blocks_ks_distri-v2.py Aar.wgd.pairs.filter.forplot 2 Aar
+python3 plot_syntenic_blocks_ks_distri.py Rsq.wgd.pairs.filter.kaks.forplot 3 Rsq
+python3 plot_syntenic_blocks_ks_distri.py Boh.wgd.pairs.kaks.forplot 3 Boh
+python3 plot_syntenic_blocks_ks_distri.py Tpa.wgd.pairs.filtered.kaks.forplot 2 Tpa
+python3 plot_syntenic_blocks_ks_distri.py Aal.wgd.pairs.filter.kaks.forplot 2 Aal
+python3 plot_syntenic_blocks_ks_distri.py Dni.wgd.pairs.filter.kaks.forplot 2 Dni
+python3 plot_syntenic_blocks_ks_distri.py Ath.wgd.pairs.filtered.kaks.forplot 2 Ath
+python3 plot_syntenic_blocks_ks_distri.py Chi.wgd.pairs.filtered.kaks.forplot 2 Chi
+python3 plot_syntenic_blocks_ks_distri.py Esy.wgd.pairs.filtered.kaks.forplot 2 Esy
+python3 plot_syntenic_blocks_ks_distri.py Aar.wgd.pairs.filter.forplot 2 Aar
 
 ##KEGG and GO
 
