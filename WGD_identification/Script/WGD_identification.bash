@@ -21,7 +21,7 @@ python3 plot_syntenic_blocks_ks_distri.py Aar.wgd.pairs.filter.forplot 2 Aar
 
 ##KEGG and GO
 
-##GO
+##GO-- R file
 library('clusterProfiler')
 library(optparse)
 library(GO.db)
@@ -43,7 +43,7 @@ ewp<-enricher(gene$V1,TERM2GENE=term2gene,pvalueCutoff =.05,qvalueCutoff =.05,TE
 cat('Run enrichers\n')
 write.table(ewp,paste0(opt$out,".enrichout.p0.05.xls"),sep='\t',quote = FALSE,row.names=FALSE)
 
-#KEGG
+#KEGG-- R file
 library('clusterProfiler')
 library(optparse)
 library(GO.db)
