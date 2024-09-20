@@ -1,0 +1,243 @@
+---
+title: "Julin_plotsr_plots"
+author: "Julin Maloof"
+date: "2024-09-16"
+output: html_document
+---
+
+Trying to use MCscan for synteny generation
+
+First install [lastal](https://gitlab.com/mcfrith/last)
+```{bash, eval = FALSE}
+cd /usr/local/bin
+sudo wget https://gitlab.com/mcfrith/last/-/archive/1584/last-1584.tar.gz
+sudo tar -xvzf last-1584.tar.gz
+cd last-1584
+sudo make
+cd /usr/local/bin
+sudo ln -s sudo ln -s last-1584/bin/* ./
+```
+
+Now install JCVI (which inlcudes MCscan)
+
+```{bash, eval=FALSE}
+conda create -n jcvi python scipy
+conda activate jcvi
+pip install jcvi
+brew install texlive #note: conda version is broken
+
+```
+
+## File conversions
+```{bash, eval=FALSE}
+
+conda activate jcvi
+
+cd /Users/jmaloof/git/Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/ACK_MCscan_plots
+
+# Convert GFF to bED
+python -m jcvi.formats.gff bed --type=mRNA --key=Name input/HiFiasm_S.div.small.gff3.gz -o S_div.bed
+
+python -m jcvi.formats.gff bed --type=mRNA --key=Name input/TAIR10_GFF3_genes.gff -o A_thaliana.bed
+
+# Reformat fasta files
+python -m jcvi.formats.fasta format input/HiFiasm_S.div.transcripts.fasta.gz S_div.cds
+python -m jcvi.formats.fasta format input/TAIR10_cds_20110103_representative_gene_model_updated.fa A_thaliana.cds
+```
+
+
+## find orthologs
+
+```{bash, eval=FALSE}
+python -m jcvi.compara.catalog ortholog S_div A_thaliana --no_strip_names
+```
+
+
+```{bash, eval=FALSE}
+python -m jcvi.compara.synteny depth S_div.A_thaliana.anchors  --histogram
+```
+
+## Set up a basic plot
+
+filter and simplify anchors
+```{bash, eval=FALSE}
+python -m jcvi.compara.synteny screen --minspan=30 --simple S_div.A_thaliana.anchors S_div.A_thaliana.anchors.simple
+```
+
+set chromosomes to plot and order
+```{r}
+At_ids <- read_tsv("input/TAIR10_chr_nuclear.fasta.fai", col_names = "seqID", col_select = 1)
+
+#use custom layout for S_div
+#Sdiv_ids <- read_tsv("1Mb_HiFiasm_S.div.fasta.fai", col_names = "seqID", col_select = 1)
+
+Sdiv_ids <- c(3, 14, 2, 16, 15, 8, 18, 22, 1, 13, 4, 5, 9, 10, 7, 12, 11, 27) %>% 
+  str_pad(width=6, pad="0") %>% 
+  str_c("ptg", ., "l")
+
+seqIDs <- list(str_c(At_ids$seqID, collapse = ","),
+               str_c(Sdiv_ids, collapse = ","))
+
+write_lines(seqIDs, "seqids")
+```
+set layout
+```{r}
+write_file(
+"# y, xstart, xend, rotation, color, label, va,  bed
+ .6,     .1,    .8,       0,      , A. thaliana, top, A_thaliana.bed
+ .4,     .1,    .8,       0,      , S. diversifolius, top, S_div.bed
+# edges
+e, 0, 1, S_div.A_thaliana.anchors.simple
+", file="layout")
+```
+
+make the plot
+```{bash, eval=FALSE}
+python -m jcvi.graphics.karyotype --outfile karyotype_simple.pdf seqids layout ; open karyotype_simple.pdf
+```
+
+### A fancier layout
+
+set chromosomes to plot and order
+```{r}
+At_ids <- read_tsv("input/TAIR10_chr_nuclear.fasta.fai", col_names = "seqID", col_select = 1)
+
+#use custom layout for S_div
+#Sdiv_ids <- read_tsv("1Mb_HiFiasm_S.div.fasta.fai", col_names = "seqID", col_select = 1)
+
+Sdiv_ids1 <- c(3, 2, 11, 8, 18, 1, 16, 4, 9, 7, 27) %>% 
+  str_pad(width=6, pad="0") %>% 
+  str_c("ptg", ., "l")
+
+Sdiv_ids2 <- c(14, 15, 22, 13, 5, 10, 12) %>% 
+  str_pad(width=6, pad="0") %>% 
+  str_c("ptg", ., "l")
+
+seqIDs <- list(str_c(Sdiv_ids1, collapse = ","),
+               str_c(At_ids$seqID, collapse = ","),
+               str_c(Sdiv_ids2, collapse = ","))
+
+write_lines(seqIDs, "seqids2")
+```
+set layout
+```{r}
+write_file(
+"# y, xstart, xend, rotation, color, label, va,  bed
+ .7,     .1,    .8,       0,      c, Sd-1, top, S_div.bed
+ .5,     .1,    .8,       0,      m, At, top, A_thaliana.bed
+ .3,     .1,    .8,       0,      c, Sd-2, bottom, S_div.bed
+# edges
+e, 0, 1, S_div.A_thaliana.anchors.simple
+e, 1, 2, S_div.A_thaliana.anchors.simple
+", file="layout2")
+```
+
+make the plot
+```{bash, eval=FALSE}
+python -m jcvi.graphics.karyotype --outfile karyotype_stacked.pdf seqids2 layout2; open karyotype_stacked.pdf
+```
+
+## ACK blocks coloring
+
+```{r}
+anchors <- read_tsv("S_div.A_thaliana.anchors.simple",
+                    col_names = c("S_div.start", "S_div.end", "A_thaliana.start", "A_thaliana.end", "distance", "direction")) %>%
+  mutate(A_thaliana.start.trim = str_remove(A_thaliana.start, "\\.[0-9]"),
+         A_thaliana.end.trim = str_remove(A_thaliana.end, "\\.[0-9]"))
+anchors
+```
+
+
+
+```{r}
+blocks <- read_tsv("../ACK_Promer_Plots/ACK_Blocks.tsv") %>%
+  mutate(Start_Gene = toupper(Start_Gene),
+         End_Gene = toupper(End_Gene),
+         At = sub("At", "Chr", At)
+  ) %>% rowwise() %>%
+  mutate(Start_Gene_2=min(Start_Gene, End_Gene),
+         End_Gene_2=max(Start_Gene, End_Gene)
+         ) %>%
+  select(AK:GB, Start_Gene=Start_Gene_2, End_Gene=End_Gene_2)
+
+blocks %>% arrange(Start_Gene)
+```
+
+I'm sure there is a better way, but I am using this to generate my conditions for case_when
+```{r}
+case <- blocks %>% 
+  mutate(range=str_c("( x >= '", Start_Gene, "' & x <= '", End_Gene, "' )")) %>%
+  group_by(AK) %>%
+  summarize(range=str_c(range, collapse = " | ")) %>%
+  mutate(case=str_c(range, " ~ '", AK, "'")) %>%
+  select(case)
+
+case <- case$case %>% str_c(collapse = ", ")
+
+case
+```
+
+```{r}
+find_block <- function(x) {
+case_when(
+ ( x >= 'AT1G01010' & x <= 'AT1G19840' ) | ( x >= 'AT1G19850' & x <= 'AT1G37130' ) | ( x >= 'AT1G43020' & x <= 'AT1G56190' ) ~ 'AK1',
+ ( x >= 'AT1G56210' & x <= 'AT1G64670' ) | ( x >= 'AT1G64960' & x <= 'AT1G80950' ) ~ 'AK2',
+ ( x >= 'AT3G01015' & x <= 'AT3G25520' ) | ( x >= 'AT2G05170' & x <= 'AT2G07690' ) | ( x >= 'AT2G10940' & x <= 'AT2G20900' ) ~ 'AK3',
+ ( x >= 'AT2G20920' & x <= 'AT2G31035' ) | ( x >= 'AT2G31040' & x <= 'AT2G48150' ) ~ 'AK4',
+ ( x >= 'AT2G01060' & x <= 'AT2G05160' ) | ( x >= 'AT3G25540' & x <= 'AT3G32960' ) | ( x >= 'AT3G42180' & x <= 'AT3G63530' ) ~ 'AK5',
+ ( x >= 'AT4G00026' & x <= 'AT4G05450' ) | ( x >= 'AT4G07390' & x <= 'AT4G12620' ) | ( x >= 'AT5G23010' & x <= 'AT5G30510' ) | ( x >= 'AT5G01010' & x <= 'AT5G23000' ) ~ 'AK6',
+ ( x >= 'AT5G32470' & x <= 'AT5G42110' ) | ( x >= 'AT4G12700' & x <= 'AT4G16240' ) | ( x >= 'AT4G16250' & x <= 'AT4G40100' ) ~ 'AK7',
+ ( x >= 'AT5G42130' & x <= 'AT5G47810' ) | ( x >= 'AT5G47820' & x <= 'AT5G60800' ) | ( x >= 'AT5G60805' & x <= 'AT5G67640' ) ~ 'AK8',
+  .default = NA)
+}
+```
+
+```{r}
+anchors <- anchors %>%
+  mutate(start_block=find_block(A_thaliana.start.trim),
+         end_block=find_block(A_thaliana.end.trim),
+         start_block=ifelse(is.na(start_block), end_block, start_block),
+         end_block=ifelse(is.na(end_block), start_block, end_block),
+         start_block=ifelse(start_block!=end_block, NA, start_block),
+         end_block=ifelse(start_block!=end_block, NA, end_block)
+  )
+
+anchors$start_block==anchors$end_block
+
+anchors <- anchors %>%
+  select(S_div.start:direction, AK_block=start_block)
+
+anchors
+```
+
+color key
+```{r}
+color_key <- tibble(
+  AK_block=sort(unique(anchors$AK_block)),
+  color=viridis::viridis(n=length(AK_block), begin=.1)[c(1,5,2,6,3,7,4,8)]
+)
+
+anchors <- anchors %>%
+  left_join(color_key, by="AK_block") %>%
+  mutate(S_div.start = ifelse(is.na(color), S_div.start, str_c(color, "*", S_div.start))) %>%
+  select(S_div.start:direction)
+
+anchors %>% write_tsv("S_div.A_thaliana.anchors.simple.color", col_names = FALSE)
+```
+
+```{r}
+write_file(
+"# y, xstart, xend, rotation, color, label, va,  bed
+ .7,     .1,    .8,       0,      c, Sd-1, top, S_div.bed
+ .5,     .1,    .8,       0,      m, At, top, A_thaliana.bed
+ .3,     .1,    .8,       0,      c, Sd-2, bottom, S_div.bed
+# edges
+e, 0, 1, S_div.A_thaliana.anchors.simple.color
+e, 1, 2, S_div.A_thaliana.anchors.simple.color
+", file="layout.ACK")
+```
+
+make the plot
+```{bash, eval=FALSE}
+python -m jcvi.graphics.karyotype --outfile karyotype_stacked_color.pdf seqids2 layout.ACK; open karyotype_stacked_color.pdf
+```

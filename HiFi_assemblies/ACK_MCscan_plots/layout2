@@ -1,0 +1,7 @@
+# y, xstart, xend, rotation, color, label, va,  bed
+ .7,     .1,    .8,       0,      c, Sd-1, top, S_div.bed
+ .5,     .1,    .8,       0,      m, At, top, A_thaliana.bed
+ .3,     .1,    .8,       0,      c, Sd-2, bottom, S_div.bed
+# edges
+e, 0, 1, S_div.A_thaliana.anchors.simple
+e, 1, 2, S_div.A_thaliana.anchors.simple

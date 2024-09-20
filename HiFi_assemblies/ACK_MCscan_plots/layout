@@ -1,0 +1,5 @@
+# y, xstart, xend, rotation, color, label, va,  bed
+ .6,     .1,    .8,       0,      , A. thaliana, top, A_thaliana.bed
+ .4,     .1,    .8,       0,      , S. diversifolius, top, S_div.bed
+# edges
+e, 0, 1, S_div.A_thaliana.anchors.simple
