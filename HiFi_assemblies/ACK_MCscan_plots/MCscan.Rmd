@@ -7,6 +7,11 @@ output: html_document
 
 Trying to use MCscan for synteny generation
 
+```{r}
+library(tidyverse)
+```
+
+
 First install [lastal](https://gitlab.com/mcfrith/last)
 ```{bash, eval = FALSE}
 cd /usr/local/bin
@@ -24,7 +29,7 @@ Now install JCVI (which inlcudes MCscan)
 conda create -n jcvi python scipy
 conda activate jcvi
 pip install jcvi
-brew install texlive #note: conda version is broken
+brew install texlive #note: conda version of texlive is broken
 
 ```
 
@@ -224,6 +229,14 @@ anchors <- anchors %>%
 
 anchors %>% write_tsv("S_div.A_thaliana.anchors.simple.color", col_names = FALSE)
 ```
+
+make a legend
+```{r}
+plot.new()
+legend(x="top", legend = color_key$AK_block, fill = color_key$color, border = NA, bty = "n", cex=1.5 )
+dev.copy2pdf(file = "legend.pdf")
+```
+
 
 ```{r}
 write_file(
