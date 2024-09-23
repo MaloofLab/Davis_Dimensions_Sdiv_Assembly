@@ -219,7 +219,8 @@ color key
 ```{r}
 color_key <- tibble(
   AK_block=sort(unique(anchors$AK_block)),
-  color=viridis::viridis(n=length(AK_block), begin=.1)[c(1,5,2,6,3,7,4,8)]
+  color=RColorBrewer::brewer.pal(10,"Paired")[c(-5, -7)]
+#  color=viridis::viridis(n=length(AK_block), begin=.1)[c(1,5,2,6,3,7,4,8)]
 )
 
 anchors <- anchors %>%
@@ -252,5 +253,6 @@ e, 1, 2, S_div.A_thaliana.anchors.simple.color
 
 make the plot
 ```{bash, eval=FALSE}
+conda activate jcvi
 python -m jcvi.graphics.karyotype --outfile karyotype_stacked_color.pdf seqids2 layout.ACK; open karyotype_stacked_color.pdf
 ```

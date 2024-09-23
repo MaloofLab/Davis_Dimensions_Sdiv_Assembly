@@ -1,5 +1,5 @@
-set terminal png tiny size 1400,1400
-set output "Promer_HiFi_vs_TAIR10.png"
+set terminal pdf size 15,15
+set output "Promer_HiFi_vs_TAIR10.pdf"
 set xtics rotate ( \
  "ptg000014l" 1.0, \
  "ptg000009l" 26529351.0, \
@@ -27,8 +27,6 @@ set ytics ( \
  "Chr3" 50125959.0, \
  "Chr4" 73585788.0, \
  "Chr5" 92170843.0, \
- "ChrC" 119146344.0, \
- "ChrM" 119300821.0, \
  "" 119668634 \
 )
 set size 1,1
@@ -49,11 +47,11 @@ set style line 2  lt 3 lw 3 pt 6 ps 1
 set style line 3  lt 2 lw 3 pt 6 ps 1
 plot \
  "Promer_HiFi_vs_TAIR10_ACK_0.gplot"  w lp pt 5 lc rgb "black",  \
- "Promer_HiFi_vs_TAIR10_ACK_1.gplot"  title "ACK 1" w lp pt 5 ps 1 lc rgb "yellow", \
- "Promer_HiFi_vs_TAIR10_ACK_2.gplot"  title "ACK 2" w lp pt 5 ps 1 lc rgb "red", \
- "Promer_HiFi_vs_TAIR10_ACK_3.gplot"  title "ACK 3" w lp pt 5 ps 1 lc rgb "blue", \
- "Promer_HiFi_vs_TAIR10_ACK_4.gplot"  title "ACK 4" w lp pt 5 ps 1 lc rgb "violet", \
- "Promer_HiFi_vs_TAIR10_ACK_5.gplot"  title "ACK 5" w lp pt 5 ps 1 lc rgb "orange", \
- "Promer_HiFi_vs_TAIR10_ACK_6.gplot"  title "ACK 6" w lp pt 5 ps 1 lc rgb "green", \
- "Promer_HiFi_vs_TAIR10_ACK_7.gplot"  title "ACK 7" w lp pt 5 ps 1 lc rgb "cyan", \
- "Promer_HiFi_vs_TAIR10_ACK_8.gplot"  title "ACK 8" w lp pt 5 ps 1 lc rgb "brown"
+ "Promer_HiFi_vs_TAIR10_ACK_1.gplot"  title "ACK 1" w lp pt 5 ps 1 lc rgb "#A6CEE3", \
+ "Promer_HiFi_vs_TAIR10_ACK_2.gplot"  title "ACK 2" w lp pt 5 ps 1 lc rgb "#1F78B4", \
+ "Promer_HiFi_vs_TAIR10_ACK_3.gplot"  title "ACK 3" w lp pt 5 ps 1 lc rgb "#B2DF8A", \
+ "Promer_HiFi_vs_TAIR10_ACK_4.gplot"  title "ACK 4" w lp pt 5 ps 1 lc rgb "#33A02C", \
+ "Promer_HiFi_vs_TAIR10_ACK_5.gplot"  title "ACK 5" w lp pt 5 ps 1 lc rgb "#E31A1C", \
+ "Promer_HiFi_vs_TAIR10_ACK_6.gplot"  title "ACK 6" w lp pt 5 ps 1 lc rgb "#FF7F00", \
+ "Promer_HiFi_vs_TAIR10_ACK_7.gplot"  title "ACK 7" w lp pt 5 ps 1 lc rgb "#CAB2D6", \
+ "Promer_HiFi_vs_TAIR10_ACK_8.gplot"  title "ACK 8" w lp pt 5 ps 1 lc rgb "#6A3D9A"
