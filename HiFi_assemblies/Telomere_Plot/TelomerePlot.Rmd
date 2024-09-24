@@ -108,10 +108,13 @@ plot.table
 ```{r}
 plot.table %>% ggplot(aes(x = reorder(chromosome, length,decreasing = TRUE), y = length)) +
   geom_col(fill = "skyblue", position="identity") +
-  geom_point( aes(y=position, size=telo_size)) + 
+  geom_point( aes(y=position, color=telo_size), size = 6) + 
+  scale_color_gradient(low="black", high = "orange", name = "Telomere Size") + 
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90, vjust=0.5)) +
   xlab("Contig") +
   ylab("Position (bp)") +
   scale_size_continuous(name="Telomere \n Size (bp)")
+
+ggsave("Telomeres.png")
 ```
