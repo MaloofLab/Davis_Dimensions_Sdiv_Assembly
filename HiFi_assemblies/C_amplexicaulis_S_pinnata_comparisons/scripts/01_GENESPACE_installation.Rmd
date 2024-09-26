@@ -1,0 +1,84 @@
+---
+title: "Genespace Installation"
+output: html_document
+date: "2024-09-25"
+---
+
+Installing [GENESPACE](https://github.com/jtlovell/GENESPACE)
+
+Note: ran into MCScanX isntallation problems on Mac, installing on Linux
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## orthofinder
+```{bash, eval=FALSE}
+conda create -n orthofinder 
+conda activate orthofinder
+conda install -c bioconda -c conda-forge orthofinder 
+```
+
+
+## MCScanX
+```{bash, eval=FALSE}
+cd /usr/local/bin
+sudo git clone https://github.com/wyp1125/MCScanX.git
+cd MCScanX
+sudo make
+cd ../
+sudo mv MCScanX MCScanX_dir
+sudo ln -s MCScanX_dir/MCScanX ./
+```
+
+## GENESPACE
+
+```{bash, eval=FALSE}
+sudo apt install libxml2-dev 
+sudo apt install r-cran-devtools
+conda activate orthofinder
+sudo R
+```
+
+```{r, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(c("Biostrings", "rtracklayer"))
+
+if (!requireNamespace("devtools", quietly = TRUE))
+    install.packages("devtools")
+devtools::install_github("jtlovell/GENESPACE")
+```
+
+## Test the installation
+
+```{r}
+library(GENESPACE)
+###############################################
+# -- change paths to those valid on your system
+genomeRepo <- "~/genespace_test_genomes"
+wd <- "~/genespace_test_workingdir"
+path2mcscanx <- "/usr/local/bin/MCScanX_dir/"
+###############################################
+
+# -- download raw data from NCBI for human and chicken genomes
+dir.create(genomeRepo)
+rawFiles <- download_exampleData(filepath = genomeRepo)
+
+# -- parse the annotations to fastas with headers that match a gene bed file
+parsedPaths <- parse_annotations(
+  rawGenomeRepo = genomeRepo,
+  genomeDirs = c("human", "chicken"),
+  genomeIDs = c("human", "chicken"),
+  presets = "ncbi",
+  genespaceWd = wd)
+
+# -- initalize the run and QC the inputs
+gpar <- init_genespace(
+  wd = wd, 
+  path2mcscanx = path2mcscanx)
+
+# -- accomplish the run
+out <- run_genespace(gpar)
+```
+
