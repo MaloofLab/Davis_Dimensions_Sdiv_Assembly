@@ -1,0 +1,64 @@
+---
+title: "02_Download_Genomes"
+output: html_document
+date: "2024-09-26"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Clean up names for S_div genes
+```{r, eval=FALSE}
+library(Biostrings)
+library(tidyverse)
+transcripts <- readDNAStringSet("../../HiFiasm_S.div.transcripts.fasta.gz")
+names(transcripts) <- names(transcripts) %>% str_remove(" .*")
+names(transcripts)
+writeXStringSet(transcripts, "../../HiFiasm_S.div.transcripts.shortnames.fasta.gz", compress = TRUE)
+
+proteins <- readAAStringSet("../../HiFiasm_S.div.proteins.fasta.gz")
+names(proteins) <- names(proteins) %>% str_remove(" .*")
+names(proteins)
+writeXStringSet(proteins, "../../HiFiasm_S.div.proteins.shortnames.fasta.gz", compress=TRUE)
+
+```
+
+
+Downloaded from Phytozome...
+
+Copy relevant files for GENESPACE analysis
+
+```{bash, eval=FALSE}
+cd Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/
+cd C_amplexicaulis_S_pinnata_comparisons/
+cd input/
+mkdir genespace_genomes
+cd genespace_genomes/
+mkdir S_pinnata
+cd S_pinnata
+cp ~/genespace_amplexicaulus_pinnata/Phytozome/Spinnata_486_v1.1.gene.gff3.gz ~/genespace_amplexicaulus_pinnata/Phytozome/Spinnata_486_v1.1.protein_primaryTranscriptOnly.fa.gz ./
+cd ../
+
+mkdir C_amplexicaulis
+cd C_amplexicaulis/
+cp ~/genespace_amplexicaulus_pinnata/Phytozome/Camplexicaulis_470_v1.1.gene.gff3.gz ~/genespace_amplexicaulus_pinnata/Phytozome/Camplexicaulis_470_v1.1.protein_primaryTranscriptOnly.fa.gz ./
+cd ../
+
+mkdir E_salsugineum
+cd E_salsugineum/
+cp ~/genespace_amplexicaulus_pinnata/Phytozome/PhytozomeV10/Esalsugineum/annotation/Esalsugineum_173_v1.0.gene.gff3.gz ~/genespace_amplexicaulus_pinnata/Phytozome/PhytozomeV10/Esalsugineum/annotation/Esalsugineum_173_v1.0.protein_primaryTranscriptOnly.fa.gz ./
+cd ../
+
+mkdir S_parvula
+cd S_parvula/
+cp ~/genespace_amplexicaulus_pinnata/Phytozome/PhytozomeV13/Sparvula/v2.2/annotation/Sparvula_574_v2.2.gene.gff3.gz ~/genespace_amplexicaulus_pinnata/Phytozome/PhytozomeV13/Sparvula/v2.2/annotation/Sparvula_574_v2.2.protein_primaryTranscriptOnly.fa.gz ./
+
+cd ../
+mkdir S_diversifolius
+cd S_diversifolius/
+ls
+ln -s ../../../../HiFiasm_S.div.small.gff3.gz ./
+ln -s ../../../../HiFiasm_S.div.proteins.shortnames.fasta.gz ./
+```
+

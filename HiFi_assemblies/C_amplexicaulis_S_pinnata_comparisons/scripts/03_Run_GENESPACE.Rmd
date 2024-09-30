@@ -1,0 +1,46 @@
+---
+title: "03_Run_GENESPACE"
+output: html_document
+date: "2024-09-30"
+---
+
+```{r}
+library(reticulate)
+use_condaenv("orthofinder") # if this doesn't work, then just activate the conda environment before starting R.
+```
+
+
+```{r}
+library(GENESPACE)
+###############################################
+# -- change paths to those valid on your system
+genomeRepo <- "~/git/Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/C_amplexicaulis_S_pinnata_comparisons/input/genespace_genomes"
+wd <- "~/git/Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/C_amplexicaulis_S_pinnata_comparisons/output/genespace"
+path2mcscanx <- "/usr/local/bin/MCScanX_dir/"
+###############################################
+
+
+# -- parse the annotations to fastas with headers that match a gene bed file
+parsedPaths <- parse_annotations(
+  rawGenomeRepo = genomeRepo,
+  genomeDirs = c("C_amplexicaulis",  "E_salsugineum",  "S_parvula",  "S_pinnata"),
+  genomeIDs = c("C_amplexicaulis",  "E_salsugineum",  "S_parvula",  "S_pinnata"),
+  presets = "phytozome",
+  genespaceWd = wd)
+
+parsedPaths <- parse_annotations(
+  rawGenomeRepo = genomeRepo,
+  genomeDirs = c("S_diversifolius"),
+  genomeIDs = c("S_diversifolius"),
+  presets = "none",
+  headerEntryIndex = 1,
+  genespaceWd = wd)
+
+# -- initalize the run and QC the inputs
+gpar <- init_genespace(
+  wd = wd, 
+  path2mcscanx = path2mcscanx)
+
+# -- accomplish the run
+out <- run_genespace(gpar)
+```
