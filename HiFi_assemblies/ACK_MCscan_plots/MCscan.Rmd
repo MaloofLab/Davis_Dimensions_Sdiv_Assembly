@@ -110,13 +110,17 @@ At_ids <- read_tsv("input/TAIR10_chr_nuclear.fasta.fai", col_names = "seqID", co
 #use custom layout for S_div
 #Sdiv_ids <- read_tsv("1Mb_HiFiasm_S.div.fasta.fai", col_names = "seqID", col_select = 1)
 
-Sdiv_ids1 <- c(3, 2, 11, 8, 18, 1, 16, 4, 9, 7, 27) %>% 
+Sdiv_ids1 <- c(3, 2, 8, 18, 11, 1, 16, 4, 9, 7, 27) %>% 
   str_pad(width=6, pad="0") %>% 
   str_c("ptg", ., "l")
+
+Sdiv_ids1 <- Sdiv_ids1 %>% str_replace("((03|18)l)", "\\1-")
 
 Sdiv_ids2 <- c(14, 15, 22, 13, 5, 10, 12) %>% 
   str_pad(width=6, pad="0") %>% 
   str_c("ptg", ., "l")
+
+Sdiv_ids2 <- Sdiv_ids2 %>% str_replace("(1[025]l)", "\\1-")
 
 seqIDs <- list(str_c(Sdiv_ids1, collapse = ","),
                str_c(At_ids$seqID, collapse = ","),
@@ -242,9 +246,9 @@ dev.copy2pdf(file = "legend.pdf")
 ```{r}
 write_file(
 "# y, xstart, xend, rotation, color, label, va,  bed
- .7,     .1,    .8,       0,      c, Sd-1, top, S_div.bed
- .5,     .1,    .8,       0,      m, At, top, A_thaliana.bed
- .3,     .1,    .8,       0,      c, Sd-2, bottom, S_div.bed
+ .7,     .2,    .9,       0,      c, S_div-1, top, S_div.bed
+ .5,     .2,    .9,       0,      m, A_thal, top, A_thaliana.bed
+ .3,     .2,    .9,       0,      c, S_div-2, bottom, S_div.bed
 # edges
 e, 0, 1, S_div.A_thaliana.anchors.simple.color
 e, 1, 2, S_div.A_thaliana.anchors.simple.color
