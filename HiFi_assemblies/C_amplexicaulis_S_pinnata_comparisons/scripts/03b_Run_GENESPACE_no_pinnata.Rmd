@@ -1,0 +1,70 @@
+---
+title: "03b_Run_GENESPACE_no_pinnata"
+output: html_document
+date: "2024-10-01"
+---
+
+S. pinnata genome is really fragmented and may be causing GENESPACE to hang.  Try it without this genome.
+
+
+```{r}
+library(GENESPACE)
+###############################################
+# -- change paths to those valid on your system
+genomeRepo <- "~/git/Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/C_amplexicaulis_S_pinnata_comparisons/input/genespace_genomes"
+wd <- "~/git/Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/C_amplexicaulis_S_pinnata_comparisons/output/genespace_no_pinnata"
+path2mcscanx <- "/usr/local/bin/MCScanX_dir/"
+###############################################
+
+
+# -- parse the annotations to fastas with headers that match a gene bed file
+parsedPaths <- parse_annotations(
+  rawGenomeRepo = genomeRepo,
+  genomeDirs = c("C_amplexicaulis",  "E_salsugineum",  "S_parvula"),
+  genomeIDs = c("C_amplexicaulis",  "E_salsugineum",  "S_parvula"),
+  presets = "phytozome",
+  genespaceWd = wd)
+
+parsedPaths <- parse_annotations(
+  rawGenomeRepo = genomeRepo,
+  genomeDirs = c("S_diversifolius"),
+  genomeIDs = c("S_diversifolius"),
+  presets = "none",
+  headerEntryIndex = 1,
+  genespaceWd = wd)
+
+# -- initalize the run and QC the inputs
+gpar <- init_genespace(
+  wd = wd, 
+  path2mcscanx = path2mcscanx)
+
+# -- accomplish the run
+out <- run_genespace(gpar)
+```
+
+Took about 5 days
+
+############################
+GENESPACE run complete!  All results are stored in
+/home/exouser/git/Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/C_amplexicaulis_S_pinnata_comparisons/output/genespace_no_pinnata
+in the following subdirectories:
+        syntenic block dotplots: /dotplots (...synHits.pdf)
+        annotated blast files  : /syntenicHits
+        annotated/combined bed : /results/combBed.txt
+        syntenic block coords. : /results/blkCoords.txt
+        syn. blk. by ref genome: /riparian/refPhasedBlkCoords.txt
+        pan-genome annotations : /pangenes (...pangenes.txt.gz)
+        riparian plots         : /riparian
+        genespace param. list  : /results/gsParams.rda
+############################
+**NOTE** the genespace parameter object is returned or can be loaded
+        into R via
+        `load('/home/exouser/git/Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/C_amplexicaulis_S_pinnata_comparisons/output/genespace_no_pinnata/results/gsParams.rda',
+        verbose = TRUE)`. Then you can customize your riparian plots by
+        calling `plot_riparian(gsParam = gsParam, ...)`. The source
+        data and ggplot2 objects are also stored in the /riparian
+        directory and can also be accessed by `load(...)`.
+**NOTE** To query genespace results by position or gene, use
+        `query_genespace(...)`. See specifications in ?query_genespace
+        for details.
+############################

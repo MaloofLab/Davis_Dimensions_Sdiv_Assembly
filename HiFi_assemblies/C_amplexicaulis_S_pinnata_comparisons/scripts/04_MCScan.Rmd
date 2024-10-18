@@ -1,0 +1,260 @@
+---
+title: "Julin_MCCan_plots"
+author: "Julin Maloof"
+date: "2024-09-30"
+output: html_document
+---
+
+Trying to use MCscan for synteny generation. This script is for comparisons close to s_div
+
+```{r}
+library(tidyverse)
+```
+
+
+First install [lastal](https://gitlab.com/mcfrith/last)
+```{bash, eval = FALSE}
+cd /usr/local/bin
+sudo wget https://gitlab.com/mcfrith/last/-/archive/1584/last-1584.tar.gz
+sudo tar -xvzf last-1584.tar.gz
+cd last-1584
+sudo make
+cd /usr/local/bin
+sudo ln -s sudo ln -s last-1584/bin/* ./
+```
+
+Now install JCVI (which inlcudes MCscan)
+
+```{bash, eval=FALSE}
+conda create -n jcvi python scipy
+conda activate jcvi
+pip install jcvi
+brew install texlive #note: conda version of texlive is broken
+
+```
+
+## File conversions
+```{bash, eval=FALSE}
+
+conda activate jcvi
+
+cd /Users/jmaloof/git/Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/C_amplexicaulis_S_pinnata_comparisons/input/MCscan
+
+# Convert GFF to BED
+python -m jcvi.formats.gff bed --type=mRNA --key=Name ../genespace_genomes/C_amplexicaulis/Camplexicaulis_470_v1.1.gene.gff3.gz -o C_amp.bed
+
+python -m jcvi.formats.gff bed --type=mRNA --key=Name ../genespace_genomes/E_salsugineum/Esalsugineum_173_v1.0.gene.gff3.gz -o E_sal.bed
+
+python -m jcvi.formats.gff bed --type=mRNA --key=Name ../genespace_genomes/S_diversifolius/HiFiasm_S.div.small.gff3.gz -o S_div.bed
+
+python -m jcvi.formats.gff bed --type=mRNA --key=Name ../genespace_genomes/S_parvula/Sparvula_574_v2.2.gene.gff3.gz -o S_par.bed
+
+python -m jcvi.formats.gff bed --type=mRNA --key=Name ../genespace_genomes/S_pinnata/Spinnata_486_v1.1.gene.gff3.gz -o S_pin.bed
+
+
+# Reformat fasta files
+
+python -m jcvi.formats.fasta format ../genespace_genomes/C_amplexicaulis/Camplexicaulis_470_v1.1.protein_primaryTranscriptOnly.fa.gz  C_amp.pep
+
+python -m jcvi.formats.fasta format ../genespace_genomes/E_salsugineum/Esalsugineum_173_v1.0.protein_primaryTranscriptOnly.fa.gz E_sal.pep
+
+python -m jcvi.formats.fasta format ../genespace_genomes/S_diversifolius/HiFiasm_S.div.protein.shortnames.gz S_div.pep
+
+python -m jcvi.formats.fasta format ../genespace_genomes/S_parvula/Sparvula_574_v2.2.protein_primaryTranscriptOnly.fa.gz S_par.pep
+
+python -m jcvi.formats.fasta format ../genespace_genomes/S_pinnata/Spinnata_486_v1.1.protein_primaryTranscriptOnly.fa.gz S_pin.pep
+
+
+
+```
+
+
+## find orthologs
+
+start with each vs S_div
+
+```{bash, eval=FALSE}
+cd ../../output/MCscan
+ln -s ../../input/MCscan/* ./
+
+python -m jcvi.compara.catalog ortholog --dbtype prot S_div C_amp
+
+python -m jcvi.compara.catalog ortholog --dbtype prot S_div E_sal
+
+python -m jcvi.compara.catalog ortholog --dbtype prot --no_strip_names S_div S_par
+
+python -m jcvi.compara.catalog ortholog --dbtype prot S_div S_pin
+
+python -m jcvi.compara.catalog ortholog --dbtype prot --no_strip_names S_par E_sal
+
+```
+
+
+## Set up a basic plot
+
+filter and simplify anchors
+```{bash, eval=FALSE}
+python -m jcvi.compara.synteny screen --minspan=30 --simple S_div.C_amp.anchors S_div.C_amp.anchors.simple
+python -m jcvi.compara.synteny screen --minspan=30 --simple S_div.E_sal.anchors S_div.E_sal.anchors.simple
+python -m jcvi.compara.synteny screen --minspan=30 --simple S_div.S_par.anchors S_div.S_par.anchors.simple
+python -m jcvi.compara.synteny screen --minspan=30 --simple S_div.S_pin.anchors S_div.S_pin.anchors.simple
+python -m jcvi.compara.synteny screen --minspan=30 --simple S_par.E_sal.anchors S_par.E_sal.anchors.simple
+
+
+
+```
+
+
+Looking at the dotplot PDFs, C_amp and S_pin are too fragmented to make alluvial plots with.  Will just use E_sal and S_par
+
+set chromosomes to plot and order
+```{r}
+Sdiv_ids <- read_tsv("../../ACK_MCscan_plots/input/1Mb_HiFiasm_S.div.fasta.fai", col_names = "seqID", col_select = 1)
+
+Spar_ids <- "ch3-1,ch3-2,ch3-3,ch3-4,ch3-5,ch3-6,ch5-1,ch5-2,ch5-3,ch5-4,ch5-5,ch5-6,ch5-7,ch1-1,ch1-2,ch7-1,ch7-2,ch7-3,ch7-4,ch7-5,ch7-6,ch2-1,ch2-2,ch2-4,ch4-1,ch4-2,ch4-4,ch4-6,ch6-1,ch6-2,ch6-3,ch6-4,ch6-6"
+
+Esal_ids <- "scaffold_11-,scaffold_4,scaffold_13,scaffold_16-,scaffold_9,scaffold_5,scaffold_7,scaffold_14,scaffold_1,scaffold_8-,scaffold_6,scaffold_15,scaffold_10-,scaffold_2,scaffold_3"
+
+Sdiv_ids <- Sdiv_ids[c(1,   2,15,   3,  4,    6, 7,16, 8,
+                       12,  14,    13, 18,5, 11,  17,  9),]
+
+
+seqIDs <- list(Spar_ids,
+               str_c(Sdiv_ids$seqID, collapse = ","),
+               Esal_ids
+               )
+
+write_lines(seqIDs, "../output/MCscan/seqids")
+```
+set layout
+```{r}
+write_file(
+"# y, xstart, xend, rotation, color, label, va,  bed
+ .8,     .1,    .8,       0,      , S. parvula, top, S_par.bed
+ .5,     .1,    .8,       0,      , S. diversifolius, top, S_div.bed
+ .2,     .1,    .8,       0,      , E. salsugineum, bottom, E_sal.bed
+# edges
+e, 0, 1, S_div.S_par.anchors.simple
+e, 1, 2, S_div.E_sal.anchors.simple
+",
+file="../output/MCscan/layout")
+```
+
+make the plot
+```{bash, eval=FALSE}
+python -m jcvi.graphics.karyotype --outfile S.div_S.par_E.sal_karyotype.pdf seqids layout ; open S.div_S.par_E.sal_karyotype.pdf
+```
+
+### A circular layout
+
+set chromosomes to plot and order
+```{r}
+Sdiv_ids <- read_tsv("../../ACK_MCscan_plots/input/1Mb_HiFiasm_S.div.fasta.fai", col_names = "seqID", col_select = 1)
+
+Spar_ids <- "ch3-6,ch3-5,ch3-4,ch3-3,ch3-2,ch3-1,ch5-1,ch5-2,ch5-3,ch5-4,ch5-5,ch5-6,ch5-7,ch1-1,ch1-2,ch7-1,ch7-2,ch7-3,ch7-4,ch7-5,ch7-6,ch2-1,ch2-2,ch2-4,ch4-1,ch4-2,ch4-4,ch4-6,ch6-1,ch6-2,ch6-3,ch6-4,ch6-6"
+
+Esal_ids <- "scaffold_11-,scaffold_4,scaffold_13,scaffold_16-,scaffold_9,scaffold_5,scaffold_7,scaffold_14,scaffold_1,scaffold_8-,scaffold_6,scaffold_15,scaffold_10-,scaffold_2,scaffold_3"
+
+Sdiv_ids1 <- Sdiv_ids$seqID[c(1,   2,15,   3,  4,    6, 7,16, 8)]
+
+Sdiv_ids1 <- Sdiv_ids1 %>% str_replace("09l", "09l-") # reverse for better plotting
+
+Sdiv_ids2 <- Sdiv_ids$seqID[c(12,  14,    13, 18,5, 11,  17,  9)]
+
+Sdiv_ids2 <- Sdiv_ids2 %>% str_replace("(1[25]l)", "\\1-") # reverse for better plotting
+
+seqIDs <- list(Spar_ids,
+               Esal_ids,
+               str_c(Sdiv_ids1, collapse = ","),
+               str_c(Sdiv_ids2, collapse = ","))
+
+write_lines(seqIDs, "../output/MCscan/seqids2")
+```
+set layout
+```{r}
+write_file(
+"# y, xstart, xend, rotation, color, label, va,  bed
+ .75,     .1,    .45,       45,      m, Sp, top, S_par.bed
+ .25,     .1,    .45,       -45,      m, Es, top, E_sal.bed
+ .75,     .55,    .9,       -45,      c, Sd-1, top, S_div.bed
+ .25,     .55,    .9,       45,      c, Sd-2, top, S_div.bed
+# edges
+e, 0, 2, S_div.S_par.anchors.simple
+e, 0, 3, S_div.S_par.anchors.simple
+e, 1, 2, S_div.E_sal.anchors.simple
+e, 1, 3, S_div.E_sal.anchors.simple
+", file="../output/MCscan/layout2")
+```
+
+make the plot
+```{bash, eval=FALSE}
+python -m jcvi.graphics.karyotype --outfile karyotype_circle.pdf seqids2 layout2; open karyotype_circle.pdf
+```
+
+
+### stacked layouts (separate)
+
+set chromosomes to plot and order
+```{r}
+Sdiv_ids <- read_tsv("../../ACK_MCscan_plots/input/1Mb_HiFiasm_S.div.fasta.fai", col_names = "seqID", col_select = 1)
+
+Spar_ids <- "ch3-6-,ch3-5-,ch3-4-,ch3-3-,ch3-2-,ch3-1-,ch5-1,ch5-2,ch5-3,ch5-4,ch5-5,ch5-6,ch5-7,ch1-1,ch1-2,ch7-1,ch7-2,ch7-3,ch7-4,ch7-5,ch7-6,ch2-1,ch2-2,ch2-4,ch4-1,ch4-2,ch4-4,ch4-6,ch6-1,ch6-2,ch6-3,ch6-4,ch6-6"
+
+Esal_ids <- "scaffold_11,scaffold_4,scaffold_13,scaffold_16,scaffold_9-,scaffold_5,scaffold_7,scaffold_14,scaffold_1-,scaffold_8,scaffold_6-,scaffold_15,scaffold_10,scaffold_2,scaffold_3-"
+
+Sdiv_ids1 <- Sdiv_ids$seqID[c(1,   2,15,   3,  4,    6, 7,16, 8)]
+
+Sdiv_ids1 <- Sdiv_ids1 %>% str_replace("09l", "09l-") # reverse for better plotting
+
+Sdiv_ids2 <- Sdiv_ids$seqID[c(12,  14,    13, 18,5, 11,  17,  9)]
+
+Sdiv_ids2 <- Sdiv_ids2 %>% str_replace("(1[25]l)", "\\1-") # reverse for better plotting
+
+seqIDs <- list(str_c(Sdiv_ids1, collapse = ","),
+               Esal_ids,
+               str_c(Sdiv_ids2, collapse = ","))
+
+write_lines(seqIDs, "../output/MCscan/seqids_stacked_Esal")
+
+seqIDs <- list(str_c(Sdiv_ids1, collapse = ","),
+               Spar_ids,
+               str_c(Sdiv_ids2, collapse = ","))
+
+write_lines(seqIDs, "../output/MCscan/seqids_stacked_Spar")
+```
+set layout
+```{r}
+write_file(
+"# y, xstart, xend, rotation, color, label, va,  bed
+ .7,     .2,    .9,       0,      m, S_div1, top, S_div.bed
+ .5,     .2,    .9,       0,      c, E_sal,  top, E_sal.bed
+ .3,     .2,    .9,       0,      m, S_div2, bottom, S_div.bed
+# edges
+e, 0, 1, S_div.E_sal.anchors.simple
+e, 1, 2, S_div.E_sal.anchors.simple
+", file="../output/MCscan/layout_stacked_E_sal")
+
+write_file(
+"# y, xstart, xend, rotation, color, label, va,  bed
+ .7,     .2,    .9,       0,      m, S_div1, top, S_div.bed
+ .5,     .2,    .9,       0,      c, S_par,  top, S_par.bed
+ .3,     .2,    .9,       0,      m, S_div2, bottom, S_div.bed
+# edges
+e, 0, 1, S_div.S_par.anchors.simple
+e, 1, 2, S_div.S_par.anchors.simple
+", file="../output/MCscan/layout_stacked_S_par")
+```
+
+make the plot
+```{bash, eval=FALSE}
+python -m jcvi.graphics.karyotype --outfile karyotype_stacked_Esal.png --dpi 300 --format png seqids_stacked_Esal layout_stacked_E_Sal; open karyotype_stacked_Esal.png
+python -m jcvi.graphics.karyotype --outfile karyotype_stacked_Spar.png --dpi 300 --format png seqids_stacked_Spar layout_stacked_S_par; open karyotype_stacked_Spar.png
+
+```
+
+## Dotplot of S.div vs C.amp
+
+```{bash, eval=FALSE}
+ python -m jcvi.graphics.dotplot --title " " --skipempty --dpi 300 --format png  --genomenames "*S. diversifolius*_*C. amplexicaulis*" S_div.C_amp.anchors ; open S_div.C_amp.png
+```
+

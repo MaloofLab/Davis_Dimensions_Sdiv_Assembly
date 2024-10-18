@@ -1,0 +1,10 @@
+# y, xstart, xend, rotation, color, label, va,  bed
+ .75,     .1,    .45,       45,      m, Sp, top, S_par.bed
+ .25,     .1,    .45,       -45,      m, Es, top, E_sal.bed
+ .75,     .55,    .9,       -45,      c, Sd-1, top, S_div.bed
+ .25,     .55,    .9,       45,      c, Sd-2, top, S_div.bed
+# edges
+e, 0, 2, S_div.S_par.anchors.simple
+e, 0, 3, S_div.S_par.anchors.simple
+e, 1, 2, S_div.E_sal.anchors.simple
+e, 1, 3, S_div.E_sal.anchors.simple

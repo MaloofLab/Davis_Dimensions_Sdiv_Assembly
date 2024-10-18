@@ -1,0 +1,7 @@
+# y, xstart, xend, rotation, color, label, va,  bed
+ .8,     .1,    .8,       0,      , S. parvula, top, S_par.bed
+ .5,     .1,    .8,       0,      , S. diversifolius, top, S_div.bed
+ .2,     .1,    .8,       0,      , E. salsugineum, bottom, E_sal.bed
+# edges
+e, 0, 1, S_div.S_par.anchors.simple
+e, 1, 2, S_div.E_sal.anchors.simple

@@ -44,3 +44,37 @@ gpar <- init_genespace(
 # -- accomplish the run
 out <- run_genespace(gpar)
 ```
+
+Took about a week, but:
+
+############################
+GENESPACE run complete!  All results are stored in
+/home/exouser/git/Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/C_amplexicaulis_S_pinnata_comparisons/output/genespace
+in the following subdirectories:
+        syntenic block dotplots: /dotplots (...synHits.pdf)
+        annotated blast files  : /syntenicHits
+        annotated/combined bed : /results/combBed.txt
+        syntenic block coords. : /results/blkCoords.txt
+        syn. blk. by ref genome: /riparian/refPhasedBlkCoords.txt
+        pan-genome annotations : /pangenes (...pangenes.txt.gz)
+        riparian plots         : /riparian
+        genespace param. list  : /results/gsParams.rda
+############################
+**NOTE** the genespace parameter object is returned or can be loaded
+        into R via
+        `load('/home/exouser/git/Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/C_amplexicaulis_S_pinnata_comparisons/output/genespace/results/gsParams.rda',
+        verbose = TRUE)`. Then you can customize your riparian plots by
+        calling `plot_riparian(gsParam = gsParam, ...)`. The source
+        data and ggplot2 objects are also stored in the /riparian
+        directory and can also be accessed by `load(...)`.
+**NOTE** To query genespace results by position or gene, use
+        `query_genespace(...)`. See specifications in ?query_genespace
+        for details.
+############################
+Warning messages:
+1: In `[.data.table`(chro, , `:=`(synClus = ct_clust(ord = meanPos,  :
+  Group 4 column 'synClus': 0.550000 (type 'double') at RHS position 1 truncated (precision lost) when assigning to type 'integer'
+2: In `[.data.table`(chro, , `:=`(synClus = ct_clust(ord = meanPos,  :
+  Group 4 column 'synClus': 0.531250 (type 'double') at RHS position 1 truncated (precision lost) when assigning to type 'integer'
+3: In `[.data.table`(chro, , `:=`(synClus = ct_clust(ord = meanPos,  :
+  Group 4 column 'synClus': 0.550000 (type 'double') at RHS position 1 truncated (precision lost) when assigning to type 'integer'
