@@ -35,18 +35,26 @@ brew install texlive #note: conda version of texlive is broken
 
 ## File conversions
 ```{bash, eval=FALSE}
+# Make transcripts from gff
+cd /Users/jmaloof/Library/CloudStorage/Box-Box/StreptanthusDimensions/Streptanthus_diversifolius_Genome/Current Assembly Files
+
+gffread -w S.div_Chr_Ordered.transcripts.fasta -g S.div_Chr_Ordered.fasta S.div_Chr_Ordered_liftoffv1.gff
 
 conda activate jcvi
 
 cd /Users/jmaloof/git/Davis_Dimensions_Sdiv_Assembly/HiFi_assemblies/ACK_MCscan_plots
 
 # Convert GFF to bED
-python -m jcvi.formats.gff bed --type=mRNA --key=Name input/HiFiasm_S.div.small.gff3.gz -o S_div.bed
+#python -m jcvi.formats.gff bed --type=mRNA --key=Name input/HiFiasm_S.div.small.gff3.gz -o S_div.bed
+
+python -m jcvi.formats.gff bed --type=mRNA --key=Name input/S.div_Chr_Ordered_liftoffv1.gff.gz -o S_div.bed
 
 python -m jcvi.formats.gff bed --type=mRNA --key=Name input/TAIR10_GFF3_genes.gff -o A_thaliana.bed
 
 # Reformat fasta files
-python -m jcvi.formats.fasta format input/HiFiasm_S.div.transcripts.fasta.gz S_div.cds
+#python -m jcvi.formats.fasta format input/HiFiasm_S.div.transcripts.fasta.gz S_div.cds
+
+python -m jcvi.formats.fasta format input/S.div_Chr_Ordered.transcripts.fasta.gz S_div.cds
 python -m jcvi.formats.fasta format input/TAIR10_cds_20110103_representative_gene_model_updated.fa A_thaliana.cds
 ```
 
@@ -74,17 +82,19 @@ set chromosomes to plot and order
 At_ids <- read_tsv("input/TAIR10_chr_nuclear.fasta.fai", col_names = "seqID", col_select = 1)
 
 #use custom layout for S_div
-#Sdiv_ids <- read_tsv("1Mb_HiFiasm_S.div.fasta.fai", col_names = "seqID", col_select = 1)
+Sdiv_ids <- read_tsv("input/S.div_Chr_Ordered.fasta.fai", col_names = "seqID", col_select = 1)
 
-Sdiv_ids <- c(3, 14, 2, 16, 15, 8, 18, 22, 1, 13, 4, 5, 9, 10, 7, 12, 11, 27) %>% 
-  str_pad(width=6, pad="0") %>% 
-  str_c("ptg", ., "l")
+Sdiv_ids0 <- Sdiv_ids$seqID[c(1, 3, 11, 12, 7, 14, 10, 13, 5, 8, 2, 4, 6, 9 )]
+
+Sdiv_ids0 <- Sdiv_ids0 %>% str_replace("(3|8|14|4|6|10)", "\\1-")
 
 seqIDs <- list(str_c(At_ids$seqID, collapse = ","),
-               str_c(Sdiv_ids, collapse = ","))
+   #            str_c(Sdiv_ids, collapse = ","))
+   str_c(Sdiv_ids0, collapse = ","))
 
 write_lines(seqIDs, "seqids")
 ```
+
 set layout
 ```{r}
 write_file(
@@ -108,19 +118,14 @@ set chromosomes to plot and order
 At_ids <- read_tsv("input/TAIR10_chr_nuclear.fasta.fai", col_names = "seqID", col_select = 1)
 
 #use custom layout for S_div
-#Sdiv_ids <- read_tsv("1Mb_HiFiasm_S.div.fasta.fai", col_names = "seqID", col_select = 1)
+Sdiv_ids <- read_tsv("input/S.div_Chr_Ordered.fasta.fai", col_names = "seqID", col_select = 1)
 
-Sdiv_ids1 <- c(3, 2, 8, 18, 11, 1, 16, 4, 9, 7, 27) %>% 
-  str_pad(width=6, pad="0") %>% 
-  str_c("ptg", ., "l")
+Sdiv_ids1 <- Sdiv_ids$seqID[c(1, 11, 7, 10, 5, 2, 6)] %>%
+  str_replace("(6|10)", "\\1-")
 
-Sdiv_ids1 <- Sdiv_ids1 %>% str_replace("((03|18)l)", "\\1-")
+Sdiv_ids2 <- Sdiv_ids$seqID[c(3, 12, 14, 13, 8, 4, 9)] %>%
+  str_replace("(3|14|8|4)", "\\1-")
 
-Sdiv_ids2 <- c(14, 15, 22, 13, 5, 10, 12) %>% 
-  str_pad(width=6, pad="0") %>% 
-  str_c("ptg", ., "l")
-
-Sdiv_ids2 <- Sdiv_ids2 %>% str_replace("(1[025]l)", "\\1-")
 
 seqIDs <- list(str_c(Sdiv_ids1, collapse = ","),
                str_c(At_ids$seqID, collapse = ","),
