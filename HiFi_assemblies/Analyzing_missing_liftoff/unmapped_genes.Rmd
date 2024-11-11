@@ -1,0 +1,151 @@
+---
+title: "unmapped_genes"
+author: "Matthew Davis"
+date: "2024-10-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Setup
+## Libraries
+```{r, message=FALSE}
+library(Biostrings)
+library(tidyverse)
+library(data.table)
+```
+
+## Read in data
+```{r}
+gff <- fread("unmapped_liftoff_all_features.gff.gz")
+```
+
+## Data set up
+```{r}
+# Rename columns
+gff <- gff %>%
+  rename("contig" = V1, "model" = V2, "feature" = V3, "start" = V4, "end" = V5, "strand" = V7, "info" = V9)
+
+#Generate length column
+gff <- gff %>%
+  mutate("length" = end - start)
+
+# Extract ID into column
+gff <- gff %>%
+  separate(col = "info", into = c("id", "other"), sep = ";") %>%
+  select(contig, model, feature, start, end, length, strand, id)
+# Warnings are okay, only need ID card
+```
+
+# Explore data
+## Length distribution
+```{r}
+gff %>%
+  filter(feature %in% "gene") %>%
+  ggplot(aes(x = length)) + 
+  geom_histogram() +
+  theme_classic()
+```
+**Note:** Weird that almost everything is 227 bp. Makes me a bit dubious. Is this a biologically relevant BP length? It isn't the typical centromere repeat or the number of bp wrapping around a histone.
+
+## Contigs represented and distribution
+```{r}
+# contigs represented
+length(unique(gff$contig))
+
+# Plot of distribution
+gff %>%
+  filter(feature %in% "gene") %>%
+  ggplot(aes(x = contig)) + 
+  geom_histogram(stat = "count") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+## Number of exons per gene
+```{r}
+gff %>%
+  filter(feature %in% "exon") %>%
+  ggplot(aes(id)) + 
+  geom_histogram(stat = "count")
+# This is saying that every gene is 1 exon ... Maybe this visualization is bad
+```
+
+## Look at strandedness
+```{r}
+gff %>%
+  filter(feature %in% "gene") %>%
+  ggplot(aes(strand)) + 
+  geom_histogram(stat = "count") + 
+  stat_count(geom = "text",
+             color = "white",
+             aes(label = after_stat(count)),
+             position = position_stack(vjust = 0.5)) +
+  theme_classic()
+# Doesn't stick out too much
+```
+
+extract relevant  sequences
+
+```{r}
+proteins <- readAAStringSet("../HiFiasm_S.div.proteins.fasta.gz")
+transcripts <- readDNAStringSet("../HiFiasm_S.div.transcripts.fasta.gz")
+```
+
+
+```{r}
+names(proteins) %>% head
+```
+
+```{r}
+names(transcripts) %>% head
+```
+
+```{r}
+gff.mrna <- gff %>% filter(feature=="mRNA") %>%
+  mutate(name=str_remove(id, "ID="))
+gff.mrna
+```
+
+```{r}
+gene.names <- tibble(full_name = names(transcripts)) %>%
+  mutate(name = str_extract(full_name, "^Sdiv.*-R")) %>%
+  select(name, full_name)
+gene.names
+```
+
+```{r}
+gff.mrna <- gff.mrna %>% left_join(gene.names, by = "name") %>% arrange(length)
+gff.mrna
+```
+
+```{r}
+proteins[str_detect(names(proteins), "Sdiv_ptg000034l_000[12345789]-R")]
+```
+
+```{r}
+proteins[str_detect(names(proteins), "Sdiv_ptg000034l_0001-R")] %>% as.character()
+
+```
+
+```{r}
+gff.mrna %>% arrange(desc(length))
+```
+
+```{r}
+proteins[str_detect(names(proteins), "Sdiv_ptg000689l_0004-R")] %>% as.character() 
+
+```
+```{r}
+table(gff.mrna$length)
+```
+```{r}
+gff.mrna %>% pull(full_name) %>% str_count("unknown") %>% sum
+```
+
+```{r}
+gff.mrna %>% filter(str_detect(full_name, "unknown", negate = TRUE)) %>% pull(full_name) %>% str_extract("Similar.*\\)") %>% unique
+```
+
