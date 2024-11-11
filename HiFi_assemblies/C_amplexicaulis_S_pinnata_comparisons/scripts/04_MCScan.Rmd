@@ -45,12 +45,11 @@ python -m jcvi.formats.gff bed --type=mRNA --key=Name ../genespace_genomes/C_amp
 
 python -m jcvi.formats.gff bed --type=mRNA --key=Name ../genespace_genomes/E_salsugineum/Esalsugineum_173_v1.0.gene.gff3.gz -o E_sal.bed
 
-python -m jcvi.formats.gff bed --type=mRNA --key=Name ../genespace_genomes/S_diversifolius/HiFiasm_S.div.small.gff3.gz -o S_div.bed
+python -m jcvi.formats.gff bed --type=mRNA --key=Name  ../../../S.div_Chr_Ordered_liftoffv1.gff.gz -o S_div.bed
 
 python -m jcvi.formats.gff bed --type=mRNA --key=Name ../genespace_genomes/S_parvula/Sparvula_574_v2.2.gene.gff3.gz -o S_par.bed
 
 python -m jcvi.formats.gff bed --type=mRNA --key=Name ../genespace_genomes/S_pinnata/Spinnata_486_v1.1.gene.gff3.gz -o S_pin.bed
-
 
 # Reformat fasta files
 
@@ -109,15 +108,11 @@ Looking at the dotplot PDFs, C_amp and S_pin are too fragmented to make alluvial
 
 set chromosomes to plot and order
 ```{r}
-Sdiv_ids <- read_tsv("../../ACK_MCscan_plots/input/1Mb_HiFiasm_S.div.fasta.fai", col_names = "seqID", col_select = 1)
+Sdiv_ids <- read_tsv("../../ACK_MCscan_plots/input/S.div_Chr_Ordered.fasta.fai", col_names = "seqID", col_select = 1)
 
 Spar_ids <- "ch3-1,ch3-2,ch3-3,ch3-4,ch3-5,ch3-6,ch5-1,ch5-2,ch5-3,ch5-4,ch5-5,ch5-6,ch5-7,ch1-1,ch1-2,ch7-1,ch7-2,ch7-3,ch7-4,ch7-5,ch7-6,ch2-1,ch2-2,ch2-4,ch4-1,ch4-2,ch4-4,ch4-6,ch6-1,ch6-2,ch6-3,ch6-4,ch6-6"
 
 Esal_ids <- "scaffold_11-,scaffold_4,scaffold_13,scaffold_16-,scaffold_9,scaffold_5,scaffold_7,scaffold_14,scaffold_1,scaffold_8-,scaffold_6,scaffold_15,scaffold_10-,scaffold_2,scaffold_3"
-
-Sdiv_ids <- Sdiv_ids[c(1,   2,15,   3,  4,    6, 7,16, 8,
-                       12,  14,    13, 18,5, 11,  17,  9),]
-
 
 seqIDs <- list(Spar_ids,
                str_c(Sdiv_ids$seqID, collapse = ","),
@@ -149,7 +144,7 @@ python -m jcvi.graphics.karyotype --outfile S.div_S.par_E.sal_karyotype.pdf seqi
 
 set chromosomes to plot and order
 ```{r}
-Sdiv_ids <- read_tsv("../../ACK_MCscan_plots/input/1Mb_HiFiasm_S.div.fasta.fai", col_names = "seqID", col_select = 1)
+Sdiv_ids <- read_tsv("../../ACK_MCscan_plots/input/S.div_Chr_Ordered.fasta.fai", col_names = "seqID", col_select = 1)
 
 Spar_ids <- "ch3-6,ch3-5,ch3-4,ch3-3,ch3-2,ch3-1,ch5-1,ch5-2,ch5-3,ch5-4,ch5-5,ch5-6,ch5-7,ch1-1,ch1-2,ch7-1,ch7-2,ch7-3,ch7-4,ch7-5,ch7-6,ch2-1,ch2-2,ch2-4,ch4-1,ch4-2,ch4-4,ch4-6,ch6-1,ch6-2,ch6-3,ch6-4,ch6-6"
 
@@ -196,19 +191,19 @@ python -m jcvi.graphics.karyotype --outfile karyotype_circle.pdf seqids2 layout2
 
 set chromosomes to plot and order
 ```{r}
-Sdiv_ids <- read_tsv("../../ACK_MCscan_plots/input/1Mb_HiFiasm_S.div.fasta.fai", col_names = "seqID", col_select = 1)
+Sdiv_ids <- read_tsv("../../ACK_MCscan_plots/input/S.div_Chr_Ordered.fasta.fai", col_names = "seqID", col_select = 1)
 
-Spar_ids <- "ch3-6-,ch3-5-,ch3-4-,ch3-3-,ch3-2-,ch3-1-,ch5-1,ch5-2,ch5-3,ch5-4,ch5-5,ch5-6,ch5-7,ch1-1,ch1-2,ch7-1,ch7-2,ch7-3,ch7-4,ch7-5,ch7-6,ch2-1,ch2-2,ch2-4,ch4-1,ch4-2,ch4-4,ch4-6,ch6-1,ch6-2,ch6-3,ch6-4,ch6-6"
+Spar_ids <- "ch1-1,ch1-2-,ch5-7-,ch5-6-,ch5-5-,ch5-4-,ch5-3-,ch5-2-,ch5-1-,ch4-1,ch4-2,ch4-4,ch4-6,ch3-1,ch3-2,ch3-3,ch3-4,ch3-5,ch3-6,ch7-1,ch7-2,ch7-3,ch7-4,ch7-5,ch7-6,ch6-6-,ch6-1,ch6-2,ch6-3,ch6-4,ch2-1,ch2-2,ch2-4"
 
-Esal_ids <- "scaffold_11,scaffold_4,scaffold_13,scaffold_16,scaffold_9-,scaffold_5,scaffold_7,scaffold_14,scaffold_1-,scaffold_8,scaffold_6-,scaffold_15,scaffold_10,scaffold_2,scaffold_3-"
+Esal_ids <- "scaffold_5-,scaffold_7,scaffold_9,scaffold_16-,scaffold_15,scaffold_10,scaffold_13-,scaffold_4-,scaffold_11-,scaffold_14,scaffold_1-,scaffold_2,scaffold_3,scaffold_8,scaffold_6-"
 
-Sdiv_ids1 <- Sdiv_ids$seqID[c(1,   2,15,   3,  4,    6, 7,16, 8)]
+Sdiv_ids1 <- Sdiv_ids$seqID[c(1, 11, 7, 10, 5, 2, 6)] %>%
+  str_replace("(6|10)", "\\1-")
 
-Sdiv_ids1 <- Sdiv_ids1 %>% str_replace("09l", "09l-") # reverse for better plotting
 
-Sdiv_ids2 <- Sdiv_ids$seqID[c(12,  14,    13, 18,5, 11,  17,  9)]
+Sdiv_ids2 <- Sdiv_ids$seqID[c(3, 12, 14, 13, 8, 4, 9)] %>%
+  str_replace("(3|14|8|4)", "\\1-")
 
-Sdiv_ids2 <- Sdiv_ids2 %>% str_replace("(1[25]l)", "\\1-") # reverse for better plotting
 
 seqIDs <- list(str_c(Sdiv_ids1, collapse = ","),
                Esal_ids,
