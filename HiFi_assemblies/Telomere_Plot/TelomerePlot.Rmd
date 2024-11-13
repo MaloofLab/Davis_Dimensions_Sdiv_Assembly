@@ -16,7 +16,7 @@ library(Biostrings)
 
 Read in the genome assembly file for the 1MB longest contigs
 ```{r}
-genome.fa <- readDNAStringSet("~/Sequences/ref_genomes/Sdiv.2023HiFiasm/1Mb_HiFiasm_S.div.fasta")
+genome.fa <- readDNAStringSet("../S.div_Chr_Ordered.fasta.gz")
 genome.fa
 ```
 
@@ -112,7 +112,7 @@ plot.table %>% ggplot(aes(x = reorder(chromosome, length,decreasing = TRUE), y =
   scale_color_gradient(low="black", high = "orange", name = "Telomere Size") + 
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90, vjust=0.5)) +
-  xlab("Contig") +
+  xlab("Chromosome") +
   ylab("Position (bp)") +
   scale_size_continuous(name="Telomere \n Size (bp)")
 
