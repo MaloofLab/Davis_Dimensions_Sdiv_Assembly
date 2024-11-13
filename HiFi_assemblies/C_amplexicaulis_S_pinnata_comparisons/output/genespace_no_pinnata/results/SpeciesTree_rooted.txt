@@ -1,0 +1,1 @@
+(E_salsugineum:0.0463766,((C_amplexicaulis:0.0205629,S_diversifolius:0.0595825)0.873275:0.0324726,S_parvula:0.0656665)1:0.0463766);

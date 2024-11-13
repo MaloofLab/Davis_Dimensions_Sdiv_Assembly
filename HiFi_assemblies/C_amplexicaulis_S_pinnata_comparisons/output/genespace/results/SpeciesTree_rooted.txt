@@ -1,1 +1,0 @@
-(E_salsugineum:0.0444852,(S_parvula:0.0629681,((S_diversifolius:0.0552924,C_amplexicaulis:0.0143334)0.449602:0.0183939,S_pinnata:0.0958889)0.7424:0.0262208)1:0.0444852);

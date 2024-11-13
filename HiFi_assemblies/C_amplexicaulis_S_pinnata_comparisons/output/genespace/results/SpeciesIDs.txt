@@ -1,5 +1,0 @@
-0: C_amplexicaulis.fa
-1: E_salsugineum.fa
-2: S_diversifolius.fa
-3: S_parvula.fa
-4: S_pinnata.fa
