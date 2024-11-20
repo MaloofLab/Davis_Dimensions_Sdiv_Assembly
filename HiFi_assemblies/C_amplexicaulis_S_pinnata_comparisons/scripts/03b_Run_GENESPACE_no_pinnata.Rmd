@@ -6,6 +6,12 @@ date: "2024-10-01"
 
 S. pinnata genome is really fragmented and may be causing GENESPACE to hang.  Try it without this genome.
 
+Before strarting R:
+
+```{bash, eval=FALSE}
+conda activate orthofinder
+```
+
 
 ```{r}
 library(GENESPACE)
@@ -35,11 +41,13 @@ parsedPaths <- parse_annotations(
 
 # -- initalize the run and QC the inputs
 gpar <- init_genespace(
+  ploidy = c(2,1,2,1),
+  nCores=12, 
   wd = wd, 
   path2mcscanx = path2mcscanx)
 
 # -- accomplish the run
-out <- run_genespace(gpar)
+out <- run_genespace(gpar, overwrite=TRUE)
 ```
 
 Took about 5 days
@@ -68,3 +76,4 @@ in the following subdirectories:
         `query_genespace(...)`. See specifications in ?query_genespace
         for details.
 ############################
+

@@ -1,0 +1,63 @@
+---
+title: "WGD Retention and Loss"
+output: html_document
+date: "2024-11-19"
+---
+
+The goal is to identify those genes that have been retained as duplicates vs those that have had a loss and are now singletons, and then to do GO and KEGG enrichment on them.  I will use the GENESPACE analysis as input.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+Load the gene info.  
+```{r}
+pangenes <- read_tsv("../output/genespace_no_pinnata/pangenes/S_diversifolius_pangenes.txt.gz")
+pangenes
+```
+
+```{r}
+pangenes %>% arrange(og)
+```
+
+```{r}
+og.copyn <- pangenes %>% filter(flag == "PASS") %>%
+  distinct(og, id, genome, ) %>% count(og, genome)
+og.copyn
+```
+
+
+```{r}
+og.copyn %>%
+  filter(n < 6) %>%
+  ggplot(aes(x=genome, fill=as.character(n))) +
+  geom_bar()
+```
+
+```{r}
+og.category <- og.copyn %>% 
+  pivot_wider(names_from = genome, values_from = n, values_fill = 0) %>%
+  mutate(retained.both = S_diversifolius==2 & C_amplexicaulis==2 & E_salsugineum==1 & S_parvula==1,
+         retained.S_div = S_diversifolius==2 & C_amplexicaulis==1 & E_salsugineum==1 & S_parvula==1,
+         retained.C_amp = S_diversifolius==1 & C_amplexicaulis==2 & E_salsugineum==1 & S_parvula==1,
+         retained.neither = S_diversifolius==1 & C_amplexicaulis==1 & E_salsugineum==1 & S_parvula==1) %>%
+ # select(og, matches("retained")) %>%
+  rowwise() %>%
+  mutate(other = !any(c_across(matches("retained")))) %>%
+  ungroup()
+
+og.category
+
+og.category %>% filter(other)
+```
+
+```{r}
+og.category %>%
+  pivot_longer(-og, names_to = "category", values_to = "status") %>%
+  filter(status) %>%
+  count(category)
+```
+
