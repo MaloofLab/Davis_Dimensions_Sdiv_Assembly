@@ -1,0 +1,42 @@
+---
+title: "WGD Retention and Loss"
+author: "Julin Maloof"
+output: html_document
+date: "2024-11-19"
+---
+
+Parse the iprscan file to separate GO file
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+colnames <- str_split_1("ID, MD5, length, analysis, acc, desc, start, stop, score, status, date, IPR.acc, IPR.desc, GO, pathway", pattern=", ")
+
+ipr <- read_tsv("../output.Julin.iprscan.gz",
+                col_names = colnames,
+                na = c("", "NA", "-"))
+head(ipr)
+```
+
+```{r}
+go <- ipr %>%
+  select(ID, GO) %>%
+  na.omit() %>%
+  distinct %>%
+  mutate(GOlist = str_split(GO, pattern=fixed("|"))) %>%
+  unnest(GOlist) %>%
+  select(ID, GO = GOlist)
+
+go
+```
+
+```{r}
+go %>% write_csv("../HiFiasm_GO.csv.gz")
+```
+
