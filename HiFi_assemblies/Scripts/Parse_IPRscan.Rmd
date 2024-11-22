@@ -34,9 +34,28 @@ go <- ipr %>%
   select(ID, GO = GOlist)
 
 go
+
+go %>% count(ID) #9856 genes have a GO
 ```
 
 ```{r}
 go %>% write_csv("../HiFiasm_GO.csv.gz")
 ```
+
+Create a list that topGO can use.  Want a named list where names are gene IDs and the GO terms are in a list.  (the opposite would also work)
+
+```{r}
+gene2GO <- go %>%
+  group_by(ID) %>%
+  summarize(GOlist = list(GO)) %>%
+  mutate(GOlist = set_names(GOlist, nm = ID)) %>%
+  pull(GOlist)
+
+head(gene2GO)
+```
+
+```{r}
+save(gene2GO, file = "../HiFiasm_S_div_gene2GO.Rdata")
+```
+
 
