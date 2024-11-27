@@ -1,5 +1,5 @@
-set terminal png tiny size 1400,1400
-set output "Promer_S.div_vs_TAIR10.png"
+set terminal pdf size 6.5,6.5
+set output "Promer_S.div_vs_TAIR10.pdf"
 set xtics rotate ( \
  "Chr1" 1.0, \
  "Chr2" 26529351.0, \

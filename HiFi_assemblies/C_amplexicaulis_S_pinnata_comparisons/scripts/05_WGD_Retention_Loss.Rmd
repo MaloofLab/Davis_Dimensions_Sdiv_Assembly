@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(topGO)
+library(clusterProfiler)
 conflicted::conflict_prefer("select", "dplyr")
 conflicted::conflict_prefer("filter", "dplyr")
 ```
@@ -283,5 +284,53 @@ all.results
 
 ```{r}
 write_csv(all.results, "../output/genespace_no_pinnata/WGD_retention_loss_GO.csv")
+```
+
+## KEGG
+
+```{r}
+kegg <- read_tsv("../input/Qionghou_Streptanthus_go_kegg/Streptanthus.ko",col_names = c("ID", "KO")) %>%
+  mutate(ID = str_c(ID, "-R")) %>% # match format in og.category table
+  select(KO, ID) # order needed for enricher
+# problems(kegg) # It is OK, just genes without a KO
+head(kegg)
+```
+
+```{r}
+library(KEGGREST)
+listDatabases()
+term2name <- keggList("ko") %>% as_tibble(rownames = "KO")
+head(term2name)
+```
+
+```{r}
+universe <- og.category %>% filter(other == FALSE) %>% pull(gene_1)
+neither <- og.category %>% filter(retained.neither) %>% pull(gene_1)
+both <- og.category %>% filter(retained.both) %>% pull(gene_1)
+S_div <- og.category %>% filter(retained.S_div) %>% pull(gene_1)
+C_amp <- og.category %>% filter(retained.C_amp) %>% pull(gene_2)
+```
+
+
+```{r}
+results.kegg.neither <- enricher(neither, universe = universe, TERM2GENE = kegg, TERM2NAME = term2name, pvalueCutoff = .1)
+head(results.kegg.neither)
+```
+ 
+ 
+
+```{r}
+results.kegg.both <- enricher(both, universe = universe, TERM2GENE = kegg, TERM2NAME = term2name, pvalueCutoff = .1)
+head(results.kegg.both)
+```
+
+```{r}
+results.kegg.S_div <- enricher(S_div, universe = universe, TERM2GENE = kegg, TERM2NAME = term2name, pvalueCutoff = .1)
+head(results.kegg.S_div)
+```
+
+```{r}
+results.kegg.C_amp <- enricher(C_amp, universe = universe, TERM2GENE = kegg, TERM2NAME = term2name, pvalueCutoff = .1)
+head(results.kegg.C_amp)
 ```
 

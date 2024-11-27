@@ -1,21 +1,21 @@
-Category,GO.ID,Term,Total Count,n in Group,Expected,P_val
+Category,GO.ID,Term,Annotated,Significant,Expected,P_val
 both retained,GO:0006355,regulation of DNA-templated transcriptio...,434,355,322.57,0.00019
 both retained,GO:0006886,intracellular protein transport,91,80,67.64,0.00073
-both lost,GO:0005975,carbohydrate metabolic process,257,37,19.29,1.80E-05
+both lost,GO:0005975,carbohydrate metabolic process,257,37,19.29,1.8e-05
 both lost,GO:0007140,male meiotic nuclear division,5,3,0.38,0.0056
 both lost,GO:0007143,female meiotic nuclear division,2,2,0.15,0.0056
 both lost,GO:0006508,proteolysis,188,21,14.11,0.0074
-S_div. retained,GO:0010073,meristem maintenance,5,4,0.28,4.60E-05
-S_div. retained,GO:0055085,transmembrane transport,305,30,17.11,0.003
+S_div. retained,GO:0010073,meristem maintenance,5,4,0.28,4.6e-05
+S_div. retained,GO:0055085,transmembrane transport,305,30,17.11,0.0030
 S_div. retained,GO:0009311,oligosaccharide metabolic process,18,4,1.01,0.0031
-C_amp. retained,GO:0009245,lipid A biosynthetic process,3,3,0.38,0.002
-C_amp. retained,GO:0046493,lipid A metabolic process,3,3,0.38,0.002
-C_amp. retained,GO:1901269,lipooligosaccharide metabolic process,3,3,0.38,0.002
-C_amp. retained,GO:1901271,lipooligosaccharide biosynthetic process,3,3,0.38,0.002
-C_amp. retained,GO:0006568,tryptophan metabolic process,6,4,0.75,0.003
-C_amp. retained,GO:0006586,indolalkylamine metabolic process,6,4,0.75,0.003
-C_amp. retained,GO:0008283,cell population proliferation,6,4,0.75,0.003
-C_amp. retained,GO:0042430,indole-containing compound metabolic pro...,6,4,0.75,0.003
+C_amp. retained,GO:0009245,lipid A biosynthetic process,3,3,0.38,0.0020
+C_amp. retained,GO:0046493,lipid A metabolic process,3,3,0.38,0.0020
+C_amp. retained,GO:1901269,lipooligosaccharide metabolic process,3,3,0.38,0.0020
+C_amp. retained,GO:1901271,lipooligosaccharide biosynthetic process,3,3,0.38,0.0020
+C_amp. retained,GO:0006568,tryptophan metabolic process,6,4,0.75,0.0030
+C_amp. retained,GO:0006586,indolalkylamine metabolic process,6,4,0.75,0.0030
+C_amp. retained,GO:0008283,cell population proliferation,6,4,0.75,0.0030
+C_amp. retained,GO:0042430,indole-containing compound metabolic pro...,6,4,0.75,0.0030
 C_amp. retained,GO:0045132,meiotic chromosome segregation,4,3,0.5,0.0071
 C_amp. retained,GO:0070192,chromosome organization involved in meio...,4,3,0.5,0.0071
 C_amp. retained,GO:0006576,biogenic amine metabolic process,11,5,1.38,0.0074
