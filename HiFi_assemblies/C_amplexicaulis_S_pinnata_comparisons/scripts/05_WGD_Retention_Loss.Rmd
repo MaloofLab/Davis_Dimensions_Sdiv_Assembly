@@ -86,6 +86,10 @@ og.category %>%
   count(category)
 ```
 
+```{r}
+og.category %>% write_csv("../output/genespace_no_pinnata/WGD_retention_loss_categories.csv")
+```
+
 ## GO analysis
 
 

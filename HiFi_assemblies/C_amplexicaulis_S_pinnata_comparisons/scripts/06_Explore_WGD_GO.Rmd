@@ -1,0 +1,168 @@
+---
+title: "06_exploring_WGD_GO_categories"
+author: "Julin Maloof"
+date: "2024-12-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Taking a look at the genes underlying GO categories that came up as interesting the WGD retention / loss analysis
+
+```{r}
+library(tidyverse)
+library(Biostrings)
+```
+
+```{r}
+enriched_go <- read_csv("../output/genespace_no_pinnata/WGD_retention_loss_GO.csv")
+enriched_go
+```
+
+```{r}
+colnames <- str_split_1("ID, MD5, length, analysis, acc, desc, start, stop, score, status, date, IPR.acc, IPR.desc, GO, pathway", pattern=", ")
+
+ipr <- read_tsv("../../output.Julin.iprscan.gz",
+                col_names = colnames,
+                na = c("", "NA", "-")) %>%
+  select(-pathway)
+head(ipr)
+```
+```{r}
+og.category <- read_csv("../output/genespace_no_pinnata/WGD_retention_loss_categories.csv")
+og.category.long <- og.category %>% pivot_longer(c(gene_1, gene_2), names_to = "gene_cat", values_to = "ID")
+og.category.long
+```
+
+```{r}
+proteins <- readAAStringSet("../../HiFiasm_S.div.proteins.fasta.gz")
+proteins
+```
+
+
+## Retained in S. div
+
+Meristem maintenance
+
+```{r}
+ipr.meristem <- ipr %>% filter(str_detect(GO, "GO:0010073"))
+ipr.meristem <- og.category.long %>% filter(retained.S_div) %>% semi_join(ipr.meristem, .)
+```
+
+```{r}
+meristem.proteins <- proteins[str_detect(names(proteins), str_c(ipr.meristem$ID, collapse="|"))]
+meristem.proteins %>% writeXStringSet("../output/genespace_no_pinnata/blast/meristem.fa")
+names(meristem.proteins)
+```
+```{r}
+#proteins[ipr.meristem$ID] %>% writeXStringSet("../output/genespace_no_pinnata/blast/meristem.fa")
+```
+
+
+## Retained in C. amp
+
+lipid
+
+```{r}
+lipid.go <- enriched_go %>% filter(Category == "C_amp. retained", str_detect(Term, "lipid|lipoo")) %>% pull(GO.ID) %>% str_c(collapse = "|")
+```
+
+
+```{r}
+ipr.lipid <- ipr %>% filter(str_detect(GO, lipid.go))
+ipr.lipid <- og.category.long %>% filter(retained.C_amp) %>% semi_join(ipr.lipid, .)
+ipr.lipid
+```
+
+```{r}
+lipid.proteins <- proteins[str_detect(names(proteins), str_c(unique(ipr.lipid$ID), collapse="|"))]
+lipid.proteins %>% writeXStringSet("../output/genespace_no_pinnata/blast/lipid.fa")
+names(lipid.proteins)
+```
+
+## Retained both
+
+### Transcription
+
+transcription
+
+```{r}
+txn.go <- enriched_go %>% filter(Category == "both retained", str_detect(Term, "transcript")) %>% pull(GO.ID) %>% str_c(collapse = "|")
+```
+
+
+```{r}
+ipr.txn <- ipr %>% filter(str_detect(GO, txn.go))
+ipr.txn <- og.category.long %>% filter(retained.both) %>% semi_join(ipr.txn, .)
+ipr.txn
+```
+
+```{r}
+txn.proteins <- proteins[str_detect(names(proteins), str_c(unique(ipr.txn$ID), collapse="|"))]
+head(names(txn.proteins), 20)
+# names(txn.proteins)
+```
+
+This is not txn machinery per se, but rather txn factors
+
+### intracellular protein transport
+
+```{r}
+transport.go <- enriched_go %>% filter(Category == "both retained", str_detect(Term, "intracellular protein transport")) %>% pull(GO.ID) %>% str_c(collapse = "|")
+```
+
+
+```{r}
+ipr.transport <- ipr %>% filter(str_detect(GO, transport.go))
+ipr.transport <- og.category.long %>% filter(retained.both) %>% semi_join(ipr.transport, .)
+ipr.transport
+```
+
+```{r}
+transport.proteins <- proteins[str_detect(names(proteins), str_c(unique(ipr.transport$ID), collapse="|"))]
+head(names(transport.proteins), 20)
+# names(transport.proteins)
+```
+
+## lost both
+
+### carbohydrate metabolic process
+
+```{r}
+carb.go <- enriched_go %>% filter(Category == "both lost", str_detect(Term, "carbohydrate")) %>% pull(GO.ID) %>% str_c(collapse = "|")
+```
+
+
+```{r}
+ipr.carb <- ipr %>% filter(str_detect(GO, carb.go))
+ipr.carb <- og.category.long %>% filter(retained.neither) %>% semi_join(ipr.carb, .)
+ipr.carb
+```
+
+```{r}
+carb.proteins <- proteins[str_detect(names(proteins), str_c(unique(ipr.carb$ID), collapse="|"))]
+head(names(carb.proteins), 20)
+# names(carb.proteins)
+```
+
+### meotic nuclear division
+
+```{r}
+meiotic.go <- enriched_go %>% filter(Category == "both lost", str_detect(Term, "meiotic")) %>% pull(GO.ID) %>% str_c(collapse = "|")
+```
+
+WHY ONLY TWO GENES HERE?
+
+```{r}
+ipr.meiotic <- ipr %>% filter(str_detect(GO, meiotic.go))
+ipr.meiotic <- og.category.long %>% filter(retained.neither) %>% semi_join(ipr.meiotic, .)
+ipr.meiotic
+```
+
+```{r}
+meiotic.proteins <- proteins[str_detect(names(proteins), str_c(unique(ipr.meiotic$ID), collapse="|"))]
+head(names(meiotic.proteins), 20)
+# names(meiotic.proteins)
+```
