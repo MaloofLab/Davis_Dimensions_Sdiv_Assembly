@@ -58,16 +58,22 @@ og.category
 
 Add S_div gene id back
 ```{r}
-og.category <- pangenes %>% 
+og.category <- 
+  
+  pangenes %>% 
   filter(genome=="S_diversifolius") %>%
   select(og, id) %>%
   distinct() %>%
+  # pull(id) %>% duplicated() %>% sum() # 0
   group_by(og) %>%
   mutate(index=row_number()) %>%
   ungroup() %>%
+  #pull(id) %>% duplicated() %>% sum() # 0
   pivot_wider(names_from = index, names_prefix = "gene_", values_from = id) %>%
   select(og, gene_1, gene_2) %>%
+  # pull(gene_2) %>% na.omit() %>% duplicated %>% sum # 0
   right_join(og.category, by = "og") %>%
+  filter(!(is.na(gene_1) & is.na(gene_2))) %>%
   arrange(og)
 
 og.category
@@ -91,8 +97,6 @@ og.category %>% write_csv("../output/genespace_no_pinnata/WGD_retention_loss_cat
 ```
 
 ## GO analysis
-
-
 
 ```{r}
 load("../../HiFiAsm_S_div_gene2GO.Rdata")
@@ -167,6 +171,10 @@ gene2GO.union <- go.table.union %>%
   pull(GOlist)  
 ```
 
+```{r}
+go.table.union %>% filter(str_detect(GO, "GO:0007140|GO:0007143"))
+```
+
 
 ### GO for genes not retained as duplicates in either species 
 ```{r}
@@ -181,6 +189,12 @@ length(gene.list.neither)
 ```{r}
 go.data.neither <- new("topGOdata", ontology = "BP",  description = "Duplicates lost in both", allGenes = gene.list.neither, annot = annFUN.gene2GO, gene2GO = gene2GO.union)
 ```
+
+```{r}
+names(gene.list.neither) %>% duplicated() %>% sum()
+```
+
+
 ```{r}
 result.fisher.neither <- runTest(go.data.neither, algorithm = "weight01", statistic = "fisher")
 result.fisher.neither
