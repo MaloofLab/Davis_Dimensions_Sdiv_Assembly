@@ -166,3 +166,23 @@ meiotic.proteins <- proteins[str_detect(names(proteins), str_c(unique(ipr.meioti
 head(names(meiotic.proteins), 20)
 # names(meiotic.proteins)
 ```
+
+
+### proteolysis
+
+```{r}
+proteolysis.go <- enriched_go %>% filter(Category == "both lost", str_detect(Term, "proteolysis")) %>% pull(GO.ID) %>% str_c(collapse = "|")
+```
+
+
+```{r}
+ipr.proteolysis <- ipr %>% filter(str_detect(GO, proteolysis.go))
+ipr.proteolysis <- og.category.long %>% filter(retained.neither) %>% semi_join(ipr.proteolysis, .)
+ipr.proteolysis
+```
+
+```{r}
+proteolysis.proteins <- proteins[str_detect(names(proteins), str_c(unique(ipr.proteolysis$ID), collapse="|"))]
+head(names(proteolysis.proteins), 20)
+# names(proteolysis.proteins)
+```
