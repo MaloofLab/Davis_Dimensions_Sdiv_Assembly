@@ -45,8 +45,8 @@ og.copyn %>%
 og.category <- og.copyn %>% 
   pivot_wider(names_from = genome, values_from = n, values_fill = 0) %>%
   mutate(retained.both = S_diversifolius==2 & C_amplexicaulis==2 & ((E_salsugineum==1 & S_parvula==1) | (E_salsugineum==1 & S_parvula==0) | (E_salsugineum==0 & S_parvula==1) ) ,
-         retained.S_div = S_diversifolius==2 & (C_amplexicaulis==1 | C_amplexicaulis==0) & ((E_salsugineum==1 & S_parvula==1) | (E_salsugineum==1 & S_parvula==0) | (E_salsugineum==0 & S_parvula==1) ),
-         retained.C_amp = (S_diversifolius==1 | S_diversifolius == 0) & C_amplexicaulis==2 & ((E_salsugineum==1 & S_parvula==1) | (E_salsugineum==1 & S_parvula==0) | (E_salsugineum==0 & S_parvula==1) ),
+         retained.S_div = S_diversifolius==2 & C_amplexicaulis==1 & ((E_salsugineum==1 & S_parvula==1) | (E_salsugineum==1 & S_parvula==0) | (E_salsugineum==0 & S_parvula==1) ),
+         retained.C_amp = S_diversifolius==1  & C_amplexicaulis==2 & ((E_salsugineum==1 & S_parvula==1) | (E_salsugineum==1 & S_parvula==0) | (E_salsugineum==0 & S_parvula==1) ),
          retained.neither = S_diversifolius==1 & C_amplexicaulis==1 &((E_salsugineum==1 & S_parvula==1) | (E_salsugineum==1 & S_parvula==0) | (E_salsugineum==0 & S_parvula==1) )) %>%
  # select(og, matches("retained")) %>%
   rowwise() %>%
