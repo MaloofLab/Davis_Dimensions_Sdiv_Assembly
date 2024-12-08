@@ -26,7 +26,7 @@ sudo ln -s sudo ln -s last-1584/bin/* ./
 Now install JCVI (which inlcudes MCscan)
 
 ```{bash, eval=FALSE}
-conda create -n jcvi python scipy
+conda create -n jcvi python=3.10 scipy # as of 12/2024, version 3.13 does not allow installation to complete.
 conda activate jcvi
 pip install jcvi
 brew install texlive #note: conda version of texlive is broken
