@@ -12,9 +12,9 @@ The final assembly files can also be found in this repository in the [HiFi_assem
 
 [S.div_Chr_Ordered.fasta.gz](./HiFi_assemblies/S.div_Chr_Ordered.fasta.gz) Is a fasta file containing the fourteen telomere-to-telomere (T2) chromosomes.  The full assembly (with unplaced contigs) is too large for github but is available on NCBI.
 
-[S.div_Chr_Ordered_liftoffv1.gff.gz](./HiFi_assemblies/S.div_Chr_Ordered_liftoffv1.gff.gz) Is the gff for the fourteen T2T chromosomes.
+[S.div_Chr_Ordered_liftoffv1.gff.gz](./HiFi_assemblies/S.div_Chr_Ordered_liftoffv1.gff.gz) Is the annotation gff for the fourteen T2T chromosomes.
 
-[S.div_liftoffv1.gff.gz](./HiFi_assemblies/S.div_liftoffv1.gff.gz) Is the gff for chromosomes and addtional contigs
+[S.div_liftoffv1.gff.gz](./HiFi_assemblies/S.div_liftoffv1.gff.gz) Is the annotation gff for chromosomes and addtional contigs
 
 [S.div_Chr_Ordered.proteins.fasta.gz](./HiFi_assemblies/S.div_Chr_Ordered.proteins.fasta.gz
 ) and [S.div_Chr_Ordered.transcripts.fasta.gz](./HiFi_assemblies/S.div_Chr_Ordered.transcripts.fasta.gz
